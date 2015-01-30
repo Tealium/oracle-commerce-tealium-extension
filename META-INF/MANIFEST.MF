@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-ATG-Product: Tealium Extension	
-ATG-Required: DAS, DPS, DSS
-ATG-Class-Path: bin/classes
-ATG-Config-Path: config
-ATG-Client-Class-Path: bin/classes 
-
-
-
