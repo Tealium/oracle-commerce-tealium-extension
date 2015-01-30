@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/Java"/>
+	<classpathentry kind="src" path="src/Resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/DAS"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/DPS"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/DSS"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/DAF"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/DCS"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
