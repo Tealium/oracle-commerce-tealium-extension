@@ -8,5 +8,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/DSS"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/DAF"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/DCS"/>
+	<classpathentry kind="lib" path="lib/tealium_udo_helper_1_2_0a.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

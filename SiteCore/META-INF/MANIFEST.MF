@@ -3,7 +3,7 @@ ATG-Product: Tealium Extension
 ATG-Required: DAS, DPS, DSS
 ATG-Class-Path: bin/classes
 ATG-Config-Path: config
-ATG-Client-Class-Path: bin/classes 
+ATG-Client-Class-Path: bin/classes, lib/tealium_udo_helper_1_2_0a.jar
 
 
 

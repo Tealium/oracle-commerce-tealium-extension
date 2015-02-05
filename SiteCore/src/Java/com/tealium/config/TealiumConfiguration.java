@@ -22,7 +22,7 @@ public class TealiumConfiguration extends GenericService {
 	private boolean utagSyncEnabled;
 
 	private boolean allowCustomUDO;
-
+	
 	/**
 	 * Returns whether site-core is enabled
 	 * 
