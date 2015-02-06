@@ -2,6 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src/Java"/>
 	<classpathentry kind="src" path="src/Resources"/>
+	<classpathentry kind="src" path="src/Test/java"/>
+	<classpathentry kind="src" path="src/Test/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/DAS"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/DPS"/>
@@ -9,5 +11,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/DAF"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/DCS"/>
 	<classpathentry kind="lib" path="lib/tealium_udo_helper_1_2_0a.jar"/>
+	<classpathentry kind="lib" path="testlib/junit-4.8.2.jar"/>
+	<classpathentry kind="lib" path="testlib/mockito-all-1.9.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
