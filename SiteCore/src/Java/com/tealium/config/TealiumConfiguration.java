@@ -10,7 +10,7 @@ public class TealiumConfiguration extends GenericService {
 	private boolean enabled;
 
 	private String siteCoreScriptURL;
-	
+
 	private String utagSyncScriptURL;
 
 	private String accountName;
@@ -22,7 +22,7 @@ public class TealiumConfiguration extends GenericService {
 	private boolean utagSyncEnabled;
 
 	private boolean allowCustomUDO;
-	
+
 	/**
 	 * Returns whether site-core is enabled
 	 * 

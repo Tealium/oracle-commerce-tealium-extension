@@ -13,9 +13,12 @@ import atg.servlet.DynamoHttpServletResponse;
 public class SiteCoreDroplet extends TeliumBaseDroplet {
 
 	@Override
-	public void service(final DynamoHttpServletRequest req,
-			final DynamoHttpServletResponse res) throws ServletException,
-			IOException {
+	public void service(final DynamoHttpServletRequest req, final DynamoHttpServletResponse res)
+			throws ServletException, IOException {
+		final String pageName = getPageName(req);
+		final String currency = getCurrency(req);
+		final String language = getLanguage(req);
+		res.getOutputStream().print(getConverter().getGenericPageScript(pageName, currency, language));
 	}
 
 }
