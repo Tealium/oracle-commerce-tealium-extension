@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="tealium-atg-extension" default="build">
+
+	<property environment="env" />
+
+	<property name="atg.dir" location="${env.DYNAMO_ROOT}" />
+
+	<property name="src.dir" location="${basedir}/src/Java" />
+	<property name="conf.dir" location="${basedir}/config"/>
+	<property name="build.dir" location="${basedir}/target" />
+	<property name="classes.dir" location="${build.dir}/classes" />
+	<property name="classes.jar" location="${build.dir}/classes.jar"/>
+	<property name="config.jar" location="${build.dir}/config.jar"/>
+
+	<property name="module" value="SiteCore" />
+	<property name="module.dir" location="${basedir}" />
+	<property name="module.lib.dir" location="${module.dir}/lib" />
+
+	<!--
+	<property name="modules" value="${module},DCS.PublishingAgent,DafEar.Admin" />
+	<echo message="${modules}" />
+	-->
+
+	<target name="compile">
+		<delete dir="${classes.dir}" />
+		<mkdir dir="${classes.dir}" />
+		<javac srcdir="${src.dir}" destdir="${classes.dir}" includeantruntime="false" debug="false" source="1.7" target="1.7" encoding="UTF-8">
+			<classpath refid="dynamo.classpath" />
+			<classpath refid="module.classpath" />
+			<include name="**/*.java" />
+		</javac>
+	</target>
+
+	<target name="package">
+		<delete file="${classes.jar}"/>
+		<delete file="${config.jar}"/>
+		<jar destfile="${classes.jar}" basedir="${classes.dir}" excludes="**/Test.class" />
+		<jar destfile="${config.jar}" basedir="${conf.dir}"/>
+	</target>
+
+	<target name="build" depends="compile, package" />
+
+
+	<path id="dynamo.classpath">
+		<fileset dir="${atg.dir}/DAS/lib" includes="**/*.jar" />
+		<fileset dir="${atg.dir}/DPS/lib" includes="**/*.jar" />
+		<fileset dir="${atg.dir}/DSS/lib" includes="**/*.jar" />
+		<fileset dir="${atg.dir}/DCS/lib" includes="**/*.jar" />
+	</path>
+
+
+	<path id="module.classpath">
+		<fileset dir="${module.lib.dir}" includes="**/*.jar" />
+	</path>
+
+
+</project>
