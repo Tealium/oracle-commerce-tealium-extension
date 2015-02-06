@@ -1,4 +1,4 @@
 package com.tealium.droplet;
 
-public class SiteCoreProductDetail extends TeliumBaseDroplet {
+public class SiteCoreProductDetail extends TealiumBaseDroplet {
 }

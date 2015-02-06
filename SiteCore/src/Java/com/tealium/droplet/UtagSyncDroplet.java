@@ -7,7 +7,7 @@ import javax.servlet.ServletException;
 import atg.servlet.DynamoHttpServletRequest;
 import atg.servlet.DynamoHttpServletResponse;
 
-public class UtagSyncDroplet extends TeliumBaseDroplet {
+public class UtagSyncDroplet extends TealiumBaseDroplet {
 
 	@Override
 	public void service(final DynamoHttpServletRequest req, final DynamoHttpServletResponse res)

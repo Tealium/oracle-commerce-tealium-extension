@@ -1,9 +1,9 @@
-Manifest-Version: 1.0
+Manifest-Version: 1.0.a
 ATG-Product: Tealium Extension	
 ATG-Required: DAS, DPS, DCS, DSS 
 ATG-Class-Path: bin/classes
 ATG-Config-Path: config
-ATG-Client-Class-Path: lib/classes.jar, lib/tealium_udo_helper_1_2_0a.jar
+ATG-Client-Class-Path: lib/tealium_udo_helper_1_2_0a.jar
 
 
 

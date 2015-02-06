@@ -98,6 +98,20 @@ public class DataConverter extends GenericService {
 		}
 	}
 
+	public String getHomeScript(final String pageName, final String currency, final String language) {
+		String scriptString = "";
+		if (getConfiguration().isEnabled()) {
+			try {
+				UDO udo = setupUDO(PrebuiltUDOPageTypes.HOME, pageName, currency, language);
+				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, "home");
+				scriptString = tealiumHelper.outputFullHtml(udo);
+			} catch (Exception e) {
+				scriptString = getExceptionString(e);
+			}
+		}
+		return scriptString;
+	}
+
 	/* Get/Set */
 	public TealiumConfiguration getConfiguration() {
 		return configuration;

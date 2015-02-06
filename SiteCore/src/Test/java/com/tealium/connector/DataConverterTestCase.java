@@ -20,6 +20,7 @@ import com.tealium.config.TealiumConfiguration;
 public class DataConverterTestCase {
 
 	private static final URL GENERIC_TAG_WITH_UTAG = DataConverter.class.getResource("GENERIC_TAG_WITH_UTAG.txt");
+	private static final URL HOME_TAG = DataConverter.class.getResource("HOME_TAG.txt");
 
 	private TealiumConfiguration config;
 	private DataConverter testInstance;
@@ -81,6 +82,11 @@ public class DataConverterTestCase {
 		this.config.setEnabled(false);
 		assertTrue("Should be en empty string",
 				StringUtils.isBlank(this.testInstance.getGenericPageScript("testPage", "USD", "en")));
+	}
+
+	@Test
+	public void shoulProduceHomeScript() throws Exception {
+		assertEquals( readResource(HOME_TAG), this.testInstance.getHomeScript("testPage", "USD", "en"));
 	}
 
 }
