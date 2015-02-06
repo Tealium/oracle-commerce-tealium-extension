@@ -17,7 +17,7 @@ import atg.core.util.StringUtils;
 
 import com.tealium.config.TealiumConfiguration;
 
-public class DataConverterTestCase extends DataConverter {
+public class DataConverterTestCase {
 
 	private static final URL GENERIC_TAG_WITH_UTAG = DataConverter.class.getResource("GENERIC_TAG_WITH_UTAG.txt");
 
@@ -45,7 +45,6 @@ public class DataConverterTestCase extends DataConverter {
 
 	@Before
 	public void setUp() throws Exception {
-		System.out.println(readResource(GENERIC_TAG_WITH_UTAG));
 		this.config = new TealiumConfiguration();
 		this.config.setEnabled(true);
 		this.config.setAccountName("testAccount");
@@ -75,6 +74,13 @@ public class DataConverterTestCase extends DataConverter {
 	public void shouldProduceGenericTagWithUTAG() throws Exception {
 		assertEquals("Wrong tag produced", readResource(GENERIC_TAG_WITH_UTAG),
 				this.testInstance.getGenericPageScript("testPage", "USD", "en"));
+	}
+
+	@Test
+	public void shouldProduceEmptyGenericScriptWhenAllDisabled() throws Exception {
+		this.config.setEnabled(false);
+		assertTrue("Should be en empty string",
+				StringUtils.isBlank(this.testInstance.getGenericPageScript("testPage", "USD", "en")));
 	}
 
 }

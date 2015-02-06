@@ -73,11 +73,11 @@ public class DataConverter extends GenericService {
 	}
 
 	public String getSyncTag() {
-		String result = null;
-		if (getConfiguration().isUtagSyncEnabled()) {
+		String result = "";
+		if (getConfiguration().isEnabled() && getConfiguration().isUtagSyncEnabled()) {
 			try {
 				result = this.tealiumHelper.outputUtagSyncJsTag();
-			} catch(Exception exc) {
+			} catch (Exception exc) {
 				return getExceptionString(exc);
 			}
 		}
@@ -85,12 +85,16 @@ public class DataConverter extends GenericService {
 	}
 
 	public String getGenericPageScript(final String pageName, final String currency, final String language) {
-		try {
-			UDO udo = setupUDO(PrebuiltUDOPageTypes.HOME, pageName, currency, language);
-			udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, "generic");
-			return tealiumHelper.outputFullHtml(udo);
-		} catch (Exception exc) {
-			return getExceptionString(exc);
+		if (getConfiguration().isEnabled()) {
+			try {
+				UDO udo = setupUDO(PrebuiltUDOPageTypes.HOME, pageName, currency, language);
+				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, "generic");
+				return tealiumHelper.outputFullHtml(udo);
+			} catch (Exception exc) {
+				return getExceptionString(exc);
+			}
+		} else {
+			return "";
 		}
 	}
 

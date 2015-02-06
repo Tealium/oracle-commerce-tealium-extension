@@ -34,7 +34,7 @@
 	<target name="package">
 		<delete file="${classes.jar}"/>
 		<delete file="${config.jar}"/>
-		<jar destfile="${classes.jar}" basedir="${classes.dir}" excludes="**/Test.class" />
+		<jar destfile="${classes.jar}" basedir="${classes.dir}" excludes="**/*Test*.class" />
 		<jar destfile="${config.jar}" basedir="${conf.dir}"/>
 	</target>
 
