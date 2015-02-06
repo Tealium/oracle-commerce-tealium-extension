@@ -6,15 +6,21 @@
 	<property name="atg.dir" location="${env.DYNAMO_ROOT}" />
 
 	<property name="src.dir" location="${basedir}/src/Java" />
-	<property name="conf.dir" location="${basedir}/config"/>
+	<property name="src.resources.dir" location="${basedir}/src/Resources" />
+	<property name="src.test.dir" location="${basedir}/src/Test/java" />
+	<property name="src.test.resources.dir" location="${basedir}/src/Test/resources" />
+	<property name="conf.dir" location="${basedir}/config" />
 	<property name="build.dir" location="${basedir}/target" />
 	<property name="classes.dir" location="${build.dir}/classes" />
-	<property name="classes.jar" location="${build.dir}/classes.jar"/>
-	<property name="config.jar" location="${build.dir}/config.jar"/>
+	<property name="testclasses.dir" location="${build.dir}/testclasses" />
+	<property name="classes.jar" location="${build.dir}/classes.jar" />
+	<property name="config.jar" location="${build.dir}/config.jar" />
+	<property name="reports.tests" location="${build.dir}/testsResult" />
 
 	<property name="module" value="SiteCore" />
 	<property name="module.dir" location="${basedir}" />
 	<property name="module.lib.dir" location="${module.dir}/lib" />
+	<property name="module.testlib.dir" location="${module.dir}/testlib" />
 
 	<!--
 	<property name="modules" value="${module},DCS.PublishingAgent,DafEar.Admin" />
@@ -31,14 +37,49 @@
 		</javac>
 	</target>
 
-	<target name="package">
-		<delete file="${classes.jar}"/>
-		<delete file="${config.jar}"/>
-		<jar destfile="${classes.jar}" basedir="${classes.dir}" excludes="**/*Test*.class" />
-		<jar destfile="${config.jar}" basedir="${conf.dir}"/>
+	<target name="testCompile">
+		<delete dir="${testclasses.dir}" />
+		<mkdir dir="${testclasses.dir}" />
+		<javac srcdir="${src.test.dir}" destdir="${testclasses.dir}" includeantruntime="false" debug="false" source="1.7" target="1.7" encoding="UTF-8">
+			<classpath refid="dynamo.classpath" />
+			<classpath refid="module.classpath" />
+			<classpath refid="test.libs" />
+			<classpath>
+				<pathelement location="${classes.dir}" />
+			</classpath>
+			<include name="**/*.java" />
+		</javac>
 	</target>
 
-	<target name="build" depends="compile, package" />
+	<target name="test" depends="testCompile">
+		<junit fork="yes" printsummary="yes" haltonfailure="yes">
+			<classpath refid="dynamo.classpath" />
+			<classpath refid="module.classpath" />
+			<classpath refid="test.libs" />
+			<classpath>
+				<pathelement location="${classes.dir}" />
+				<pathelement location="${src.resources.dir}" />
+				<pathelement location="${testclasses.dir}" />
+				<pathelement location="${src.test.resources.dir}" />
+			</classpath>
+			<batchtest haltonerror="false" todir="${reports.tests}">
+				<fileset dir="${src.test.dir}" excludes="**/*.txt" />
+				<formatter type="plain" usefile="false" />
+			</batchtest>
+		</junit>
+	</target>
+
+	<target name="package">
+		<delete file="${classes.jar}" />
+		<delete file="${config.jar}" />
+		<jar destfile="${classes.jar}">
+			<fileset dir="${classes.dir}" includes="**/*.class" />
+			<fileset dir="${src.resources.dir}" includes="**/**" />
+		</jar>
+		<jar destfile="${config.jar}" basedir="${conf.dir}" />
+	</target>
+
+	<target name="build" depends="compile,test,package" />
 
 
 	<path id="dynamo.classpath">
@@ -51,6 +92,10 @@
 
 	<path id="module.classpath">
 		<fileset dir="${module.lib.dir}" includes="**/*.jar" />
+	</path>
+
+	<path id="test.libs">
+		<fileset dir="${module.testlib.dir}" includes="**/*.jar" />
 	</path>
 
 
