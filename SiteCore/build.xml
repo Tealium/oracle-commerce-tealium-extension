@@ -63,7 +63,7 @@
 				<pathelement location="${src.test.resources.dir}" />
 			</classpath>
 			<batchtest haltonerror="false" todir="${reports.tests}">
-				<fileset dir="${src.test.dir}" excludes="**/*.txt" />
+				<fileset dir="${src.test.dir}" includes="**/*TestCase.java" />
 				<formatter type="plain" usefile="false" />
 			</batchtest>
 		</junit>

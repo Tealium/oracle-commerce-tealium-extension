@@ -191,7 +191,7 @@ public class DataConverter extends GenericService {
 				result = tealiumHelper.outputFullHtml(udo);
 			} catch (Exception exc) {
 				vlogError(exc, "Can not build PDP script. For product: {0}, pageName {1}, currency {2}, language {3}",
-						product, currency, language);
+						product, pageName, currency, language);
 				result = getExceptionString(exc);
 			}
 		}
@@ -213,7 +213,20 @@ public class DataConverter extends GenericService {
 			} catch (Exception exc) {
 				vlogError(exc,
 						"Can not build category script. For category: {0}, pageName {1}, currency {2}, language {3}",
-						category, currency, language);
+						category, pageName, currency, language);
+				result = getExceptionString(exc);
+			}
+		}
+		return result;
+	}
+
+	public String getSearchPageScript(final String pageName, final String currency, final String language) {
+		String result = "";
+		if (getConfiguration().isEnabled()) {
+			try {
+			} catch (Exception exc) {
+				vlogError(exc,
+						"Can not build category script. For category: {0}, pageName {1}, currency {2}, language {3}", pageName, currency, language);
 				result = getExceptionString(exc);
 			}
 		}
