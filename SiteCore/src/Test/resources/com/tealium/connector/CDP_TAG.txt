@@ -1,0 +1,19 @@
+<script type='text/javascript'>
+	var utag_data = 
+{
+	"page_category_name":"TestCat0",
+	"page_subcategory_name":"",
+	"site_currency":"USD",
+	"site_region":"en",
+	"page_type":"product",
+	"page_section_name":"",
+	"page_name":"testCDP"
+}
+</script>
+<script type='text/javascript'>
+	(function(a,b,c,d){
+	a='//tags.tiqcdn.com/utag/testAccount/testProfile/testEnv/utag.js';
+	b=document;c='script';d=b.createElement(c);d.src=a;d.type='text/java'+c;d.async=true;
+	a=b.getElementsByTagName(c)[0];a.parentNode.insertBefore(d,a);
+	})();
+</script>

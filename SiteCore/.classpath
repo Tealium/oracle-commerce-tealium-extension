@@ -10,8 +10,11 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/DSS"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/DAF"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/DCS"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/DAF.Search"/>
 	<classpathentry kind="lib" path="lib/tealium_udo_helper_1_2_0a.jar"/>
 	<classpathentry kind="lib" path="testlib/junit-4.8.2.jar"/>
 	<classpathentry kind="lib" path="testlib/mockito-all-1.9.5.jar"/>
+	<classpathentry kind="lib" path="lib/guava-16.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-3.2.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

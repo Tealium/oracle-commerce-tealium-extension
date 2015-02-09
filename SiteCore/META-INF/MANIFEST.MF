@@ -1,9 +1,9 @@
 Manifest-Version: 1.0.a
-ATG-Product: Tealium Extension	
-ATG-Required: DAS, DPS, DCS, DSS 
+ATG-Product: Tealium/SiteCore	
+ATG-Required: DAS, DPS, DCS, DSS, DAF.Search 
 ATG-Class-Path: bin/classes
-ATG-Config-Path: config
-ATG-Client-Class-Path: lib/tealium_udo_helper_1_2_0a.jar
+ATG-Config-Path: config/config.jar
+ATG-Client-Class-Path: lib/tealium_udo_helper_1_2_0a.jar lib/guava-16.0.1.jar lib/commons-lang3-3.2.1.jar
 
 
 
