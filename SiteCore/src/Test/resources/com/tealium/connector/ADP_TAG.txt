@@ -1,0 +1,20 @@
+<script type='text/javascript'>
+	var utag_data = 
+{
+	"site_currency":"USD",
+	"customer_email":"test@example.com",
+	"customer_name":"Test Testing",
+	"site_region":"en",
+	"gender":"male",
+	"page_name":"tstADP",
+	"customer_type":"",
+	"customer_id":"tstUsr"
+}
+</script>
+<script type='text/javascript'>
+	(function(a,b,c,d){
+	a='//tags.tiqcdn.com/utag/testAccount/testProfile/testEnv/utag.js';
+	b=document;c='script';d=b.createElement(c);d.src=a;d.type='text/java'+c;d.async=true;
+	a=b.getElementsByTagName(c)[0];a.parentNode.insertBefore(d,a);
+	})();
+</script>

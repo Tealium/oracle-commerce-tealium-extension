@@ -2,6 +2,7 @@ package com.tealium.connector;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
@@ -17,9 +18,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import atg.beans.PropertyNotFoundException;
 import atg.commerce.pricing.PricingTools;
 import atg.core.util.StringUtils;
+import atg.repository.MutableRepositoryItem;
 import atg.repository.RepositoryItem;
+import atg.userprofiling.Profile;
+import atg.userprofiling.ProfileTools;
+import atg.userprofiling.PropertyManager;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -32,11 +38,7 @@ public class DataConverterTestCase {
 	private static final URL HOME_TAG = DataConverterTestCase.class.getResource("HOME_TAG.txt");
 	private static final URL PDP_TAG = DataConverterTestCase.class.getResource("PDP_TAG.txt");
 	private static final URL CDP_TAG = DataConverterTestCase.class.getResource("CDP_TAG.txt");
-
-	private TealiumConfiguration config;
-	private DataConverter testInstance;
-	private @Mock
-	PricingTools mPricingTools;
+	private static final URL ADP_TAG = DataConverterTestCase.class.getResource("ADP_TAG.txt");
 
 	private static String readResource(URL resource) throws IOException {
 		Reader inp = null;
@@ -57,6 +59,11 @@ public class DataConverterTestCase {
 		}
 	}
 
+	private TealiumConfiguration config;
+	private DataConverter testInstance;
+	@Mock
+	private PricingTools mPricingTools;
+
 	@Before
 	public void setUp() throws Exception {
 		this.config = new TealiumConfiguration();
@@ -66,7 +73,6 @@ public class DataConverterTestCase {
 		this.config.setEnvironmentName("testEnv");
 
 		when(mPricingTools.getChildSKUsPropertyName()).thenReturn("childSkus");
-
 		this.testInstance = new DataConverter();
 		this.testInstance.setConfiguration(this.config);
 		this.testInstance.setPricingTools(mPricingTools);
@@ -117,6 +123,35 @@ public class DataConverterTestCase {
 		final RepositoryItem category = new RepositoryItemMockBuilder("category").setId("TC0")
 				.setProperty("name", "TestCat0").build();
 		assertEquals(readResource(CDP_TAG), this.testInstance.getCategoryScript(category, "testCDP", "USD", "en"));
+	}
+
+	@Test
+	public void shouldProduceCustmerScript() throws Exception {
+		final Profile profile = mockProfile();
+		assertEquals(readResource(ADP_TAG), this.testInstance.getCustomerDetailScript(profile, "tstADP", "USD", "en"));
+	}
+
+	private Profile mockProfile() throws PropertyNotFoundException {
+		Profile profile = new Profile();
+
+		ProfileTools mProfileTools = mock(ProfileTools.class);
+		PropertyManager mPropertyManager = mock(PropertyManager.class);
+		when(mProfileTools.getPropertyManager()).thenReturn(mPropertyManager);
+		when(mProfileTools.getSecurityStatus(profile)).thenReturn(5); // login
+																		// wiht
+																		// https
+		when(mPropertyManager.getSecurityStatusAnonymous()).thenReturn(0);
+		when(mPropertyManager.getEmailAddressPropertyName()).thenReturn("email");
+		when(mPropertyManager.getFirstNamePropertyName()).thenReturn("firstName");
+		when(mPropertyManager.getLastNamePropertyName()).thenReturn("lastName");
+		profile.setProfileTools(mProfileTools);
+
+		MutableRepositoryItem user = new RepositoryItemMockBuilder("user").setId("tstUsr")
+				.setProperty("firstName", "Test").setProperty("lastName", "Testing").setProperty("gender", "male")
+				.setProperty("email", "test@example.com").build();
+
+		profile.setDataSource(user);
+		return profile;
 	}
 
 	private RepositoryItem createProductMock() {

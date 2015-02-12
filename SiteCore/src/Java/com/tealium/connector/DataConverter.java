@@ -1,5 +1,7 @@
 package com.tealium.connector;
 
+import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -11,6 +13,9 @@ import atg.core.util.StringUtils;
 import atg.nucleus.GenericService;
 import atg.nucleus.ServiceException;
 import atg.repository.RepositoryItem;
+import atg.userprofiling.Profile;
+import atg.userprofiling.ProfileTools;
+import atg.userprofiling.PropertyManager;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
@@ -226,7 +231,45 @@ public class DataConverter extends GenericService {
 			try {
 			} catch (Exception exc) {
 				vlogError(exc,
-						"Can not build category script. For category: {0}, pageName {1}, currency {2}, language {3}", pageName, currency, language);
+						"Can not build category script. For category: {0}, pageName {1}, currency {2}, language {3}",
+						pageName, currency, language);
+				result = getExceptionString(exc);
+			}
+		}
+		return result;
+	}
+
+	public String getCustomerDetailScript(final Profile profile, final String pageName, final String currency,
+			final String language) {
+		String result = "";
+		if (getConfiguration().isEnabled()) {
+			try {
+				final UDO udo = setupUDO(PrebuiltUDOPageTypes.CUSTOMER, pageName, currency, language);
+				udo.setValue(TealiumHelper.CustomerPageUDO.PredefinedUDOFields.CUSTOMER_ID, profile.getRepositoryId());
+				final ProfileTools profileTools = profile.getProfileTools();
+				final PropertyManager propertyManager = profileTools.getPropertyManager();
+				if (profileTools.getSecurityStatus(profile) > propertyManager.getSecurityStatusAnonymous()) {
+					final String userEmail = (String) profile.getPropertyValue(propertyManager
+							.getEmailAddressPropertyName());
+					final String firstName = (String) profile.getPropertyValue(propertyManager
+							.getFirstNamePropertyName());
+					final String lastName = (String) profile
+							.getPropertyValue(propertyManager.getLastNamePropertyName());
+					final String gender = defaultIfNull((String) profile.getPropertyValue("gender"), "unknown");
+					final String userNameString = StringUtils.joinStrings(new String[] { defaultIfNull(firstName, ""),
+							defaultIfNull(lastName, "") }, ' ');
+
+					if (StringUtils.isNotBlank(userEmail)) {
+						udo.setValue(TealiumHelper.CustomerPageUDO.PredefinedUDOFields.CUSTOMER_EMAIL, userEmail);
+					}
+					udo.setValue("customer_name", userNameString);
+					udo.setValue("gender", gender);
+				}
+				result = tealiumHelper.outputFullHtml(udo);
+			} catch (Exception exc) {
+				vlogError(exc,
+						"Can not build account script. For profile: {0}, pageName {1}, currency {2}, language {3}",
+						profile, pageName, currency, language);
 				result = getExceptionString(exc);
 			}
 		}
