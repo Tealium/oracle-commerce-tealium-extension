@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.CharBuffer;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,9 +20,16 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import atg.beans.PropertyNotFoundException;
+import atg.commerce.catalog.CatalogTools;
+import atg.commerce.order.CommerceItem;
+import atg.commerce.order.Order;
+import atg.commerce.pricing.ItemPriceInfo;
+import atg.commerce.pricing.OrderPriceInfo;
 import atg.commerce.pricing.PricingTools;
 import atg.core.util.StringUtils;
 import atg.repository.MutableRepositoryItem;
+import atg.repository.Repository;
+import atg.repository.RepositoryException;
 import atg.repository.RepositoryItem;
 import atg.userprofiling.Profile;
 import atg.userprofiling.ProfileTools;
@@ -30,6 +38,7 @@ import atg.userprofiling.PropertyManager;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.tealium.config.TealiumConfiguration;
+import com.tealium.connector.search.SearchResult;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataConverterTestCase {
@@ -39,6 +48,8 @@ public class DataConverterTestCase {
 	private static final URL PDP_TAG = DataConverterTestCase.class.getResource("PDP_TAG.txt");
 	private static final URL CDP_TAG = DataConverterTestCase.class.getResource("CDP_TAG.txt");
 	private static final URL ADP_TAG = DataConverterTestCase.class.getResource("ADP_TAG.txt");
+	private static final URL SRP_TAG = DataConverterTestCase.class.getResource("SRP_TAG.txt");
+	private static final URL ORDR_TAG = DataConverterTestCase.class.getResource("ORDR_TAG.txt");
 
 	private static String readResource(URL resource) throws IOException {
 		Reader inp = null;
@@ -63,6 +74,10 @@ public class DataConverterTestCase {
 	private DataConverter testInstance;
 	@Mock
 	private PricingTools mPricingTools;
+	@Mock
+	private CatalogTools mCatalogTools;
+	@Mock
+	private Repository mCatalog;
 
 	@Before
 	public void setUp() throws Exception {
@@ -73,9 +88,12 @@ public class DataConverterTestCase {
 		this.config.setEnvironmentName("testEnv");
 
 		when(mPricingTools.getChildSKUsPropertyName()).thenReturn("childSkus");
+		when(mCatalogTools.getCatalog()).thenReturn(mCatalog);
+
 		this.testInstance = new DataConverter();
 		this.testInstance.setConfiguration(this.config);
 		this.testInstance.setPricingTools(mPricingTools);
+		this.testInstance.setCatalogTools(mCatalogTools);
 		this.testInstance.doStartService();
 	}
 
@@ -131,6 +149,20 @@ public class DataConverterTestCase {
 		assertEquals(readResource(ADP_TAG), this.testInstance.getCustomerDetailScript(profile, "tstADP", "USD", "en"));
 	}
 
+	@Test
+	public void shouldProduceSearchResultScript() throws Exception {
+		assertEquals(readResource(SRP_TAG),
+				this.testInstance.getSearchPageScript(new SearchResult("test", 100L), "testSRP", "USD", "en"));
+	}
+
+	@Test
+	public void shouldProduceCardScript() throws Exception {
+		assertEquals(readResource(ORDR_TAG),
+				this.testInstance.getCartScript(createOrderMock(), "ShopingCard", "USD", "en"));
+	}
+
+	/* Mock helpers */
+
 	private Profile mockProfile() throws PropertyNotFoundException {
 		Profile profile = new Profile();
 
@@ -152,6 +184,57 @@ public class DataConverterTestCase {
 
 		profile.setDataSource(user);
 		return profile;
+	}
+
+	private Order createOrderMock() throws RepositoryException {
+
+		final Order result = mock(Order.class);
+		List<CommerceItem> commereceItems = Lists.newArrayList();
+		when(result.getCommerceItems()).thenReturn(commereceItems);
+
+		OrderPriceInfo orderPriceInfo = mock(OrderPriceInfo.class);
+		when(orderPriceInfo.getTotal()).thenReturn(500D);
+		when(result.getPriceInfo()).thenReturn(orderPriceInfo);
+
+		RepositoryItem category = mockCategory("TCT0", "TestCat");
+		RepositoryItem product = mockProduct(category);
+		RepositoryItem sku0 = mockSKU(product, "TSKU0", "TestSKU0", 100D);
+		RepositoryItem sku1 = mockSKU(product, "TSKU1", "TestSKU1", 200D);
+
+		commereceItems.add(mockCommerceItem("CI0", "TSKU0", sku0, 1L, 100D, 100D));
+		commereceItems.add(mockCommerceItem("CI1", "TSKU1", sku1, 2L, 400D, 200D));
+
+		return result;
+	}
+
+	private RepositoryItem mockSKU(RepositoryItem product, String id, String name, double price) {
+		return new RepositoryItemMockBuilder("sku").setId(id).setProperty("name", name).setProperty("listPrice", price)
+				.setProperty("parentProduct", product).build();
+	}
+
+	private RepositoryItem mockProduct(RepositoryItem category) {
+		RepositoryItem result = new RepositoryItemMockBuilder("product").setId("TP0")
+				.setProperty("name", "TestProduct").setProperty("brand", "TestBrand")
+				.setProperty("parentCategories", Sets.newHashSet(category)).build();
+		return result;
+	}
+
+	private RepositoryItem mockCategory(String id, String name) {
+		return new RepositoryItemMockBuilder("category").setId(id).setProperty("name", name).build();
+	}
+
+	private CommerceItem mockCommerceItem(String id, String skuId, RepositoryItem sku, long qty, double priceAmount,
+			double listPrice) throws RepositoryException {
+		CommerceItem result = mock(CommerceItem.class);
+		when(result.getId()).thenReturn(id);
+		when(result.getCatalogId()).thenReturn(skuId);
+		when(result.getQuantity()).thenReturn(qty);
+		ItemPriceInfo priceInfo = mock(ItemPriceInfo.class);
+		when(priceInfo.getAmount()).thenReturn(priceAmount);
+		when(priceInfo.getListPrice()).thenReturn(listPrice);
+		when(result.getPriceInfo()).thenReturn(priceInfo);
+		when(mCatalog.getItem(skuId, "sku")).thenReturn(sku);
+		return result;
 	}
 
 	private RepositoryItem createProductMock() {

@@ -1,0 +1,25 @@
+<script type='text/javascript'>
+	var utag_data = 
+{
+	"product_category":["TestCat","TestCat"],
+	"product_id":["TP0","TP0"],
+	"product_unit_price":["0.0","0.0"],
+	"product_sku":["TSKU0","TSKU1"],
+	"site_currency":"USD",
+	"product_name":["TestSKU0","TestSKU1"],
+	"product_quantity":["1","2"],
+	"product_brand":["TestBrand","TestBrand"],
+	"site_region":"en",
+	"cart_total":"500.0",
+	"page_type":"checkout",
+	"page_name":"ShopingCard",
+	"product_list_price":["100.0","400.0"]
+}
+</script>
+<script type='text/javascript'>
+	(function(a,b,c,d){
+	a='//tags.tiqcdn.com/utag/testAccount/testProfile/testEnv/utag.js';
+	b=document;c='script';d=b.createElement(c);d.src=a;d.type='text/java'+c;d.async=true;
+	a=b.getElementsByTagName(c)[0];a.parentNode.insertBefore(d,a);
+	})();
+</script>

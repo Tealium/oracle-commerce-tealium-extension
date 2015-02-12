@@ -8,6 +8,11 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
+import atg.commerce.catalog.CatalogTools;
+import atg.commerce.order.CommerceItem;
+import atg.commerce.order.Order;
+import atg.commerce.pricing.ItemPriceInfo;
+import atg.commerce.pricing.OrderPriceInfo;
 import atg.commerce.pricing.PricingTools;
 import atg.core.util.StringUtils;
 import atg.nucleus.GenericService;
@@ -21,6 +26,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.tealium.config.TealiumConfiguration;
+import com.tealium.connector.search.SearchResult;
 import com.tealium.util.udohelpers.TealiumHelper;
 import com.tealium.util.udohelpers.TealiumHelper.PrebuiltUDOPageTypes;
 import com.tealium.util.udohelpers.TealiumHelper.UDOOptions;
@@ -33,6 +39,7 @@ public class DataConverter extends GenericService {
 	private TealiumConfiguration configuration;
 	private TealiumHelper tealiumHelper;
 	private PricingTools pricingTools;
+	private CatalogTools catalogTools;
 
 	public TealiumHelper setupTealiumHelper() throws UDODefinitionException, UDOUpdateException {
 		final String accountString = getConfiguration().getAccountName();
@@ -225,14 +232,22 @@ public class DataConverter extends GenericService {
 		return result;
 	}
 
-	public String getSearchPageScript(final String pageName, final String currency, final String language) {
+	public String getSearchPageScript(final SearchResult searchResults, final String pageName, final String currency,
+			final String language) {
 		String result = "";
 		if (getConfiguration().isEnabled()) {
 			try {
+				UDO udo = setupUDO(PrebuiltUDOPageTypes.SEARCH, pageName, currency, language);
+				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, "search");
+				udo.setValue(TealiumHelper.SearchPageUDO.PredefinedUDOFields.SEARCH_KEYWORD, searchResults.getKeyWord());
+				udo.setValue(TealiumHelper.SearchPageUDO.PredefinedUDOFields.SEARCH_RESULTS,
+						String.valueOf(searchResults.getTotalResultsNumber()));
+				result = tealiumHelper.outputFullHtml(udo);
 			} catch (Exception exc) {
-				vlogError(exc,
-						"Can not build category script. For category: {0}, pageName {1}, currency {2}, language {3}",
-						pageName, currency, language);
+				vlogError(
+						exc,
+						"Can not build search results script. For searchResults: {0}, pageName {1}, currency {2}, language {3}",
+						searchResults, pageName, currency, language);
 				result = getExceptionString(exc);
 			}
 		}
@@ -276,6 +291,93 @@ public class DataConverter extends GenericService {
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
+	public String getCartScript(Order currentOrder, final String pageName, final String currency, final String language) {
+		String result = "";
+		if (getConfiguration().isEnabled()) {
+			try {
+				UDO udo = setupUDO(PrebuiltUDOPageTypes.CART, pageName, currency, language);
+				List<String> productBrandList = Lists.newLinkedList();
+				List<String> productCategoryList = Lists.newLinkedList();
+				List<String> productIdList = Lists.newLinkedList();
+				List<String> productListPriceList = Lists.newLinkedList();
+				List<String> productNameList = Lists.newLinkedList();
+				List<String> productQuantityList = Lists.newLinkedList();
+				List<String> productSkuList = Lists.newLinkedList();
+				List<String> productUnitPriceList = Lists.newLinkedList();
+
+				// Set total price
+				OrderPriceInfo orderPrice = currentOrder.getPriceInfo();
+				udo.setValue("cart_total", String.valueOf(orderPrice.getTotal()));
+
+				@SuppressWarnings("unchecked")
+				final Collection<CommerceItem> commerceItems = currentOrder.getCommerceItems();
+				for (CommerceItem commerceItem : commerceItems) {
+					final RepositoryItem skuItem = getCatalogTools().getCatalog().getItem(commerceItem.getCatalogId(),
+							"sku");
+					final RepositoryItem product = (RepositoryItem) skuItem.getPropertyValue("parentProduct");
+					String sku = skuItem.getRepositoryId();
+					String name = (String) skuItem.getPropertyValue("name");
+					String quantity = String.valueOf(commerceItem.getQuantity());
+					ItemPriceInfo itemPriceInfo = commerceItem.getPriceInfo();
+					String basePrice = String.valueOf(itemPriceInfo.getAmount());
+					final Collection<RepositoryItem> parentCategories = (Collection<RepositoryItem>) product
+							.getPropertyValue("parentCategories");
+					String category = (String) Iterables.getFirst(parentCategories, null).getPropertyValue("name");
+					String brand = (String) product.getPropertyValue("brand");
+					productBrandList.add(brand);
+					productCategoryList.add(category);
+					productIdList.add(product.getRepositoryId());
+					productListPriceList.add(basePrice);
+					productNameList.add(name);
+					productQuantityList.add(quantity);
+					productSkuList.add(sku);
+					productUnitPriceList.add(String.valueOf(itemPriceInfo.getSalePrice()));
+				}
+
+				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, "checkout")
+						.addArrayValues(TealiumHelper.CartPageUDO.PredefinedUDOFields.PRODUCT_BRAND, productBrandList)
+						.addArrayValues(TealiumHelper.CartPageUDO.PredefinedUDOFields.PRODUCT_CATEGORY,
+								productCategoryList)
+						.addArrayValues(TealiumHelper.CartPageUDO.PredefinedUDOFields.PRODUCT_ID, productIdList)
+						.addArrayValues(TealiumHelper.CartPageUDO.PredefinedUDOFields.PRODUCT_LIST_PRICE,
+								productListPriceList)
+						.addArrayValues(TealiumHelper.CartPageUDO.PredefinedUDOFields.PRODUCT_NAME, productNameList)
+						.addArrayValues(TealiumHelper.CartPageUDO.PredefinedUDOFields.PRODUCT_QUANTITY,
+								productQuantityList)
+						.addArrayValues(TealiumHelper.CartPageUDO.PredefinedUDOFields.PRODUCT_SKU, productSkuList)
+						.addArrayValues(TealiumHelper.CartPageUDO.PredefinedUDOFields.PRODUCT_UNIT_PRICE,
+								productUnitPriceList);
+
+				result = tealiumHelper.outputFullHtml(udo);
+
+			} catch (Exception exc) {
+				vlogError(exc,
+						"Can not build shopping card script. For order: {0}, pageName {1}, currency {2}, language {3}",
+						currentOrder, pageName, currency, language);
+				result = getExceptionString(exc);
+			}
+		}
+		return result;
+	}
+
+	public String getOrderConfirmationScript(Order lastOrder, final String pageName, final String currency,
+			final String language) {
+		String result = "";
+		if (getConfiguration().isEnabled()) {
+			try {
+				UDO udo = setupUDO(PrebuiltUDOPageTypes.CONFIRMATION, pageName, currency, language);
+			} catch (Exception exc) {
+				vlogError(
+						exc,
+						"Can not build order confirmations script. For order: {0}, pageName {1}, currency {2}, language {3}",
+						lastOrder, pageName, currency, language);
+				result = getExceptionString(exc);
+			}
+		}
+		return result;
+	}
+
 	/* Get/Set */
 	public TealiumConfiguration getConfiguration() {
 		return configuration;
@@ -291,6 +393,14 @@ public class DataConverter extends GenericService {
 
 	public void setPricingTools(PricingTools pricingTools) {
 		this.pricingTools = pricingTools;
+	}
+
+	public CatalogTools getCatalogTools() {
+		return catalogTools;
+	}
+
+	public void setCatalogTools(CatalogTools catalogTools) {
+		this.catalogTools = catalogTools;
 	}
 
 }
