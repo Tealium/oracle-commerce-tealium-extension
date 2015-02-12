@@ -23,9 +23,10 @@ public class SearchResultsDroplet extends TealiumBaseDroplet {
 		final String language = getLanguage(req);
 		final String keyWord = req.getParameter(IP_KEYWORD);
 		final Long totalResultsNumber = (Long) req.getObjectParameter(IP_TOTAL_RESULTS_NO);
-		res.getOutputStream().print(
-				getConverter().getSearchPageScript(new SearchResult(keyWord, totalResultsNumber), pageName, currency,
-						language));
+		final String generatedScript = getConverter().getSearchPageScript(
+				new SearchResult(keyWord, totalResultsNumber), pageName, currency, language);
+		vlogDebug("Genereated script: {0}", generatedScript);
+		res.getOutputStream().print(generatedScript);
 	}
 
 }

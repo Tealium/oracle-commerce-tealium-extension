@@ -8,9 +8,12 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import atg.commerce.catalog.CatalogTools;
 import atg.commerce.order.CommerceItem;
 import atg.commerce.order.Order;
+import atg.commerce.order.PaymentGroup;
 import atg.commerce.pricing.ItemPriceInfo;
 import atg.commerce.pricing.OrderPriceInfo;
 import atg.commerce.pricing.PricingTools;
@@ -310,7 +313,6 @@ public class DataConverter extends GenericService {
 				OrderPriceInfo orderPrice = currentOrder.getPriceInfo();
 				udo.setValue("cart_total", String.valueOf(orderPrice.getTotal()));
 
-				@SuppressWarnings("unchecked")
 				final Collection<CommerceItem> commerceItems = currentOrder.getCommerceItems();
 				for (CommerceItem commerceItem : commerceItems) {
 					final RepositoryItem skuItem = getCatalogTools().getCatalog().getItem(commerceItem.getCatalogId(),
@@ -361,12 +363,99 @@ public class DataConverter extends GenericService {
 		return result;
 	}
 
-	public String getOrderConfirmationScript(Order lastOrder, final String pageName, final String currency,
-			final String language) {
+	@SuppressWarnings("unchecked")
+	public String getOrderConfirmationScript(Order lastOrder, String userEmail, final String pageName,
+			final String currency, final String language) {
 		String result = "";
 		if (getConfiguration().isEnabled()) {
 			try {
 				UDO udo = setupUDO(PrebuiltUDOPageTypes.CONFIRMATION, pageName, currency, language);
+				String siteCurrency = ObjectUtils.defaultIfNull(lastOrder.getPriceInfo().getCurrencyCode(), currency);
+				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_CURRENCY, siteCurrency);
+				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_ID, lastOrder.getId());
+				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.CUSTOMER_ID, lastOrder.getProfileId());
+				if (StringUtils.isNotBlank(userEmail)) {
+					udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.CUSTOMER_EMAIL, userEmail);
+				}
+				
+				OrderPriceInfo priceInfo = lastOrder.getPriceInfo();
+				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_TOTAL,
+						String.valueOf(priceInfo.getTotal()));
+				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_SHIPPING,
+						String.valueOf(priceInfo.getShipping()));
+				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_TAX,
+						String.valueOf(priceInfo.getTax()));
+				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_DISCOUNT,
+						String.valueOf(priceInfo.getManualAdjustmentTotal()));
+				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_SUBTOTAL,
+						String.valueOf(priceInfo.getRawSubtotal()));
+				
+				
+
+				final PaymentGroup paymentGroup = Iterables.getFirst((List<PaymentGroup>)lastOrder.getPaymentGroups(), null);
+				// null is not possible for submitted order
+				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_PAYMENT_TYPE,
+						paymentGroup.getPaymentGroupClassType());
+
+
+				List<String> productBrandList = Lists.newLinkedList();
+				List<String> productCategoryList = Lists.newLinkedList();
+				List<String> productIdList = Lists.newLinkedList();
+				List<String> productListPriceList = Lists.newLinkedList();
+				List<String> productNameList = Lists.newLinkedList();
+				List<String> productQuantityList = Lists.newLinkedList();
+				List<String> productSkuList = Lists.newLinkedList();
+				List<String> productUnitPriceList = Lists.newLinkedList();
+				List<String> productDiscountList = Lists.newLinkedList();
+
+				final Collection<CommerceItem> commerceItems = lastOrder.getCommerceItems();
+				for (CommerceItem commerceItem : commerceItems) {
+					final RepositoryItem skuItem = getCatalogTools().getCatalog().getItem(commerceItem.getCatalogId(),
+							"sku");
+					final RepositoryItem product = (RepositoryItem) skuItem.getPropertyValue("parentProduct");
+					String sku = skuItem.getRepositoryId();
+					String name = (String) skuItem.getPropertyValue("name");
+					String quantity = String.valueOf(commerceItem.getQuantity());
+					ItemPriceInfo itemPriceInfo = commerceItem.getPriceInfo();
+					String basePrice = String.valueOf(itemPriceInfo.getAmount());
+					final Collection<RepositoryItem> parentCategories = (Collection<RepositoryItem>) product
+							.getPropertyValue("parentCategories");
+					String category = (String) Iterables.getFirst(parentCategories, null).getPropertyValue("name");
+					String brand = (String) product.getPropertyValue("brand");
+					
+					
+					// TODO: Check filds with Patric
+	   				productBrandList.add(brand);
+	   				productCategoryList.add(category);
+	   				productIdList.add(product.getRepositoryId());
+	   				productListPriceList.add(basePrice);
+	   				productNameList.add(name);
+	   				productQuantityList.add(quantity);
+	   				productSkuList.add(sku);
+	   				productUnitPriceList.add(String.valueOf(itemPriceInfo.getSalePrice()));
+	   				productDiscountList.add(String.valueOf(itemPriceInfo.getOrderDiscountShare()));
+				}
+
+				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, "checkout")
+						.addArrayValues(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.PRODUCT_BRAND,
+								productBrandList)
+						.addArrayValues(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.PRODUCT_CATEGORY,
+								productCategoryList)
+						.addArrayValues(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.PRODUCT_ID, productIdList)
+						.addArrayValues(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.PRODUCT_LIST_PRICE,
+								productListPriceList)
+						.addArrayValues(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.PRODUCT_NAME,
+								productNameList)
+						.addArrayValues(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.PRODUCT_QUANTITY,
+								productQuantityList)
+						.addArrayValues(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.PRODUCT_SKU,
+								productSkuList)
+						.addArrayValues(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.PRODUCT_UNIT_PRICE,
+								productUnitPriceList)
+						.addArrayValues(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.PRODUCT_DISCOUNT,
+								productDiscountList);
+
+				result = tealiumHelper.outputFullHtml(udo);
 			} catch (Exception exc) {
 				vlogError(
 						exc,

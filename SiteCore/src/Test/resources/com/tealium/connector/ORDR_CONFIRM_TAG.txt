@@ -1,19 +1,29 @@
 <script type='text/javascript'>
 	var utag_data = 
 {
-	"product_category":["TestCat","TestCat"],
+	"order_total":"560.0",
+	"order_currency":"USD",
+	"order_shipping":"10.0",
 	"product_id":["TP0","TP0"],
+	"order_payment_type":"Debit card",
+	"product_name":["TestSKU0","TestSKU1"],
+	"product_quantity":["1","2"],
+	"customer_email":"test@example.com",
+	"site_region":"en",
+	"order_id":"TSTORD1",
+	"order_subtotal":"610.0",
+	"order_tax":"100.0",
+	"product_category":["TestCat","TestCat"],
 	"product_unit_price":["100.0","200.0"],
 	"product_sku":["TSKU0","TSKU1"],
 	"site_currency":"USD",
-	"product_name":["TestSKU0","TestSKU1"],
-	"product_quantity":["1","2"],
 	"product_brand":["TestBrand","TestBrand"],
-	"site_region":"en",
-	"cart_total":"560.0",
 	"page_type":"checkout",
-	"page_name":"ShopingCard",
-	"product_list_price":["100.0","400.0"]
+	"page_name":"ThankYouPage",
+	"product_list_price":["100.0","400.0"],
+	"order_discount":"100.0",
+	"product_discount":["0.0","50.0"],
+	"customer_id":"testuser"
 }
 </script>
 <script type='text/javascript'>

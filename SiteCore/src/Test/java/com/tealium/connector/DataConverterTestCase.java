@@ -22,6 +22,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import atg.beans.PropertyNotFoundException;
 import atg.commerce.catalog.CatalogTools;
 import atg.commerce.order.CommerceItem;
+import atg.commerce.order.CreditCard;
 import atg.commerce.order.Order;
 import atg.commerce.pricing.ItemPriceInfo;
 import atg.commerce.pricing.OrderPriceInfo;
@@ -50,6 +51,7 @@ public class DataConverterTestCase {
 	private static final URL ADP_TAG = DataConverterTestCase.class.getResource("ADP_TAG.txt");
 	private static final URL SRP_TAG = DataConverterTestCase.class.getResource("SRP_TAG.txt");
 	private static final URL ORDR_TAG = DataConverterTestCase.class.getResource("ORDR_TAG.txt");
+	private static final URL ORDR_CONFIRM_TAG = DataConverterTestCase.class.getResource("ORDR_CONFIRM_TAG.txt");
 
 	private static String readResource(URL resource) throws IOException {
 		Reader inp = null;
@@ -158,7 +160,13 @@ public class DataConverterTestCase {
 	@Test
 	public void shouldProduceCardScript() throws Exception {
 		assertEquals(readResource(ORDR_TAG),
-				this.testInstance.getCartScript(createOrderMock(), "ShopingCard", "USD", "en"));
+				this.testInstance.getCartScript(createOrderMock("TSTORD0"), "ShopingCard", "USD", "en"));
+	}
+
+	@Test
+	public void shouldProduceOrderConfirmationScript() throws Exception {
+		assertEquals(readResource(ORDR_CONFIRM_TAG), this.testInstance.getOrderConfirmationScript(
+				createOrderMock("TSTORD1"), "test@example.com", "ThankYouPage", "USD", "en"));
 	}
 
 	/* Mock helpers */
@@ -186,23 +194,34 @@ public class DataConverterTestCase {
 		return profile;
 	}
 
-	private Order createOrderMock() throws RepositoryException {
+	private Order createOrderMock(String id) throws RepositoryException {
 
 		final Order result = mock(Order.class);
+		when(result.getId()).thenReturn(id);
+		when(result.getProfileId()).thenReturn("testuser");
+
 		List<CommerceItem> commereceItems = Lists.newArrayList();
 		when(result.getCommerceItems()).thenReturn(commereceItems);
 
 		OrderPriceInfo orderPriceInfo = mock(OrderPriceInfo.class);
-		when(orderPriceInfo.getTotal()).thenReturn(500D);
+		when(orderPriceInfo.getTotal()).thenReturn(560D);
+		when(orderPriceInfo.getShipping()).thenReturn(10D);
+		when(orderPriceInfo.getTax()).thenReturn(100D);
+		when(orderPriceInfo.getManualAdjustmentTotal()).thenReturn(100D);
+		when(orderPriceInfo.getRawSubtotal()).thenReturn(610D);
 		when(result.getPriceInfo()).thenReturn(orderPriceInfo);
+
+		CreditCard paymentGroup = mock(CreditCard.class);
+		when(paymentGroup.getPaymentGroupClassType()).thenReturn("Debit card");
+		when(result.getPaymentGroups()).thenReturn(Lists.newArrayList(paymentGroup));
 
 		RepositoryItem category = mockCategory("TCT0", "TestCat");
 		RepositoryItem product = mockProduct(category);
 		RepositoryItem sku0 = mockSKU(product, "TSKU0", "TestSKU0", 100D);
 		RepositoryItem sku1 = mockSKU(product, "TSKU1", "TestSKU1", 200D);
 
-		commereceItems.add(mockCommerceItem("CI0", "TSKU0", sku0, 1L, 100D, 100D));
-		commereceItems.add(mockCommerceItem("CI1", "TSKU1", sku1, 2L, 400D, 200D));
+		commereceItems.add(mockCommerceItem("CI0", "TSKU0", sku0, 1L, 100D, 100D, 0D));
+		commereceItems.add(mockCommerceItem("CI1", "TSKU1", sku1, 2L, 400D, 200D, 50D));
 
 		return result;
 	}
@@ -224,7 +243,7 @@ public class DataConverterTestCase {
 	}
 
 	private CommerceItem mockCommerceItem(String id, String skuId, RepositoryItem sku, long qty, double priceAmount,
-			double listPrice) throws RepositoryException {
+			double listPrice, double discount) throws RepositoryException {
 		CommerceItem result = mock(CommerceItem.class);
 		when(result.getId()).thenReturn(id);
 		when(result.getCatalogId()).thenReturn(skuId);
@@ -232,7 +251,12 @@ public class DataConverterTestCase {
 		ItemPriceInfo priceInfo = mock(ItemPriceInfo.class);
 		when(priceInfo.getAmount()).thenReturn(priceAmount);
 		when(priceInfo.getListPrice()).thenReturn(listPrice);
+		when(priceInfo.getSalePrice()).thenReturn(listPrice);
 		when(result.getPriceInfo()).thenReturn(priceInfo);
+		if (discount > 0D) {
+			when(priceInfo.isDiscounted()).thenReturn(true);
+			when(priceInfo.getOrderDiscountShare()).thenReturn(discount);
+		}
 		when(mCatalog.getItem(skuId, "sku")).thenReturn(sku);
 		return result;
 	}
