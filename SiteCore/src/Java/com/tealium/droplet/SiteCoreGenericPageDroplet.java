@@ -10,7 +10,7 @@ import atg.servlet.DynamoHttpServletResponse;
 /**
  * Outputs the base TealiumSC tag, should be used after the body HTML tag
  */
-public class SiteCoreGenericPageDroplet extends TealiumBaseDroplet {
+public class SiteCoreGenericPageDroplet extends SiteCoreBaseDroplet {
 
 	@Override
 	public void service(final DynamoHttpServletRequest req, final DynamoHttpServletResponse res)
@@ -19,8 +19,7 @@ public class SiteCoreGenericPageDroplet extends TealiumBaseDroplet {
 		final String currency = getCurrency(req);
 		final String language = getLanguage(req);
 		final String scriptStr = getConverter().getGenericPageScript(pageName, currency, language);
-		vlogDebug("Generated script: {0}", scriptStr);
-		res.getOutputStream().print(scriptStr);
+		serviceScript(scriptStr, res);
 	}
 
 }

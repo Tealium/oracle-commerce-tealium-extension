@@ -1,12 +1,15 @@
 package com.tealium.droplet;
 
+import java.io.IOException;
+
 import com.tealium.connector.DataConverter;
 
 import atg.nucleus.naming.ParameterName;
 import atg.servlet.DynamoHttpServletRequest;
+import atg.servlet.DynamoHttpServletResponse;
 import atg.servlet.DynamoServlet;
 
-public abstract class TealiumBaseDroplet extends DynamoServlet {
+public abstract class SiteCoreBaseDroplet extends DynamoServlet {
 	
 	private static ParameterName IP_PAGE_NAME = ParameterName.getParameterName("pageName");
 	private static ParameterName IP_CURRENCY = ParameterName.getParameterName("currency");
@@ -22,6 +25,11 @@ public abstract class TealiumBaseDroplet extends DynamoServlet {
 	
 	protected String getLanguage(final DynamoHttpServletRequest req) {
 		return req.getParameter(IP_LANGUAGE);
+	}
+	
+	protected void serviceScript(CharSequence script, DynamoHttpServletResponse resp) throws IOException {
+		vlogDebug("Generated script: {0}", script);
+		resp.getOutputStream().print(script.toString());
 	}
 	
 	private DataConverter converter;

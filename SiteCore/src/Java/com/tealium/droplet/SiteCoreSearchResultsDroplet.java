@@ -10,7 +10,7 @@ import atg.servlet.DynamoHttpServletResponse;
 
 import com.tealium.connector.search.SearchResult;
 
-public class SearchResultsDroplet extends TealiumBaseDroplet {
+public class SiteCoreSearchResultsDroplet extends SiteCoreBaseDroplet {
 
 	private static final ParameterName IP_KEYWORD = ParameterName.getParameterName("searchKeyWord");
 	private static final ParameterName IP_TOTAL_RESULTS_NO = ParameterName.getParameterName("totalResultsNumber");
@@ -25,8 +25,7 @@ public class SearchResultsDroplet extends TealiumBaseDroplet {
 		final Long totalResultsNumber = (Long) req.getObjectParameter(IP_TOTAL_RESULTS_NO);
 		final String generatedScript = getConverter().getSearchPageScript(
 				new SearchResult(keyWord, totalResultsNumber), pageName, currency, language);
-		vlogDebug("Genereated script: {0}", generatedScript);
-		res.getOutputStream().print(generatedScript);
+		serviceScript(generatedScript, res);
 	}
 
 }
