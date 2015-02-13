@@ -37,21 +37,43 @@ import com.tealium.util.udohelpers.UDO;
 import com.tealium.util.udohelpers.exceptions.UDODefinitionException;
 import com.tealium.util.udohelpers.exceptions.UDOUpdateException;
 
+/**
+ * Converts ATG service layer data to the corresponding SiteCore JavaScript tags
+ * content
+ * 
+ * @author TealiumIQ
+ * 
+ */
 public class DataConverter extends GenericService {
+
+	private static final String ERROR_STRING = "<!--  Tealium ERROR \nThere may be an error in your installation, please check you logging.\n"
+			+ "Log refernce ID:  %s\n\t\t  END Tealium ERROR -->";
 
 	private TealiumConfiguration configuration;
 	private TealiumHelper tealiumHelper;
 	private PricingTools pricingTools;
 	private CatalogTools catalogTools;
 
-	public TealiumHelper setupTealiumHelper() throws UDODefinitionException, UDOUpdateException {
-		final String accountString = getConfiguration().getAccountName();
-		final String profileString = getConfiguration().getProfileName();
-		final String targetString = getConfiguration().getEnvironmentName();// Config.getParameter("tealiumIQ.target");;
-		return new TealiumHelper(accountString, profileString, targetString);
-	}
-
-	private UDO setupUDO(PrebuiltUDOPageTypes pageType, final String pageName, final String currency,
+	/**
+	 * Creates and do the basic configuration of UDO
+	 * 
+	 * @param pageType
+	 *            the UDO page type
+	 * @param pageName
+	 *            the page name, i.e. {@code shoping Card} or {@code PDP}
+	 * @param currency
+	 *            the current site currency, can be obtained from ATG site
+	 *            starting from ATG 10
+	 * @param language
+	 *            the current site language, can be obtained from ATG site
+	 *            locale strging form ATG 11
+	 * @return the new UDO
+	 * @throws UDODefinitionException
+	 *             in case of UDO creation error
+	 * @throws UDOUpdateException
+	 *             in case of UDO basic configuration error
+	 */
+	protected UDO setupUDO(PrebuiltUDOPageTypes pageType, final String pageName, final String currency,
 			final String language) throws UDODefinitionException, UDOUpdateException {
 		this.tealiumHelper.assumePageTypeUDO("global").mayHaveStringFields(
 				EnumSet.of(UDOOptions.WRITE_IF_EMPTY_OR_NULL, UDOOptions.REQUIRED), "page_name", "site_currency",
@@ -70,20 +92,23 @@ public class DataConverter extends GenericService {
 		return udo;
 	}
 
-	private String getExceptionString(Exception exc) {
-		final Date date = new Date();
-		final String referenceIDString = date.hashCode() + "";
-		vlogError(exc, "Tealium error ID: {0}", referenceIDString);
-		final StringBuilder scriptBuilder = new StringBuilder();
-		scriptBuilder.append("<!--  Tealium ERROR \n");
-		scriptBuilder.append("There may be an error in your installation, please check you logging.");
-		scriptBuilder.append("\n");
-		scriptBuilder.append("Log refernce ID: ");
-		scriptBuilder.append(referenceIDString);
-		scriptBuilder.append("\n\t\t  END Tealium ERROR -->");
-		return scriptBuilder.toString();
+	public TealiumHelper setupTealiumHelper() throws UDODefinitionException, UDOUpdateException {
+		final String accountString = getConfiguration().getAccountName();
+		final String profileString = getConfiguration().getProfileName();
+		final String targetString = getConfiguration().getEnvironmentName();// Config.getParameter("tealiumIQ.target");;
+		return new TealiumHelper(accountString, profileString, targetString);
 	}
 
+	private String getExceptionString(Exception exc) {
+		final Date date = new Date();
+		final String referenceIDString = String.valueOf(date.hashCode());
+		vlogError(exc, "Tealium error ID: {0}", referenceIDString);
+		return String.format(ERROR_STRING, referenceIDString);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void doStartService() throws ServiceException {
 		super.doStartService();
@@ -96,6 +121,11 @@ public class DataConverter extends GenericService {
 		}
 	}
 
+	/**
+	 * Creates UTAG synk script tag text
+	 * 
+	 * @return UTAG synk script tag text
+	 */
 	public String getSyncTag() {
 		String result = "";
 		if (getConfiguration().isEnabled() && getConfiguration().isUtagSyncEnabled()) {
@@ -109,6 +139,18 @@ public class DataConverter extends GenericService {
 		return result;
 	}
 
+	/**
+	 * Creates generic page script tag, which can be used at any site page which
+	 * not requires any special parameters
+	 * 
+	 * @param pageName
+	 *            the page name
+	 * @param currency
+	 *            the current site currency
+	 * @param language
+	 *            the current site language
+	 * @return generic page script tag
+	 */
 	public String getGenericPageScript(final String pageName, final String currency, final String language) {
 		if (getConfiguration().isEnabled()) {
 			try {
@@ -125,6 +167,17 @@ public class DataConverter extends GenericService {
 		}
 	}
 
+	/**
+	 * Creates home page tag script
+	 * 
+	 * @param pageName
+	 *            the page name
+	 * @param currency
+	 *            the current site currency
+	 * @param language
+	 *            the current site language
+	 * @return home page script tag
+	 */
 	public String getHomeScript(final String pageName, final String currency, final String language) {
 		String scriptString = "";
 		if (getConfiguration().isEnabled()) {
@@ -141,6 +194,19 @@ public class DataConverter extends GenericService {
 		return scriptString;
 	}
 
+	/**
+	 * Creates product detail page (PDP) script tag
+	 * 
+	 * @param product
+	 *            the ATG catalog product
+	 * @param pageName
+	 *            the page name
+	 * @param currency
+	 *            the current site currency
+	 * @param language
+	 *            the current site language
+	 * @return PDP page script tag
+	 */
 	@SuppressWarnings("unchecked")
 	public String getProductPageScript(final RepositoryItem product, final String pageName, final String currency,
 			final String language) {
@@ -213,6 +279,19 @@ public class DataConverter extends GenericService {
 		return result;
 	}
 
+	/**
+	 * Creates category details page (CDP) script tag
+	 * 
+	 * @param category
+	 *            ATG catalog category
+	 * @param pageName
+	 *            the page name
+	 * @param currency
+	 *            the current site currency
+	 * @param language
+	 *            the current site language
+	 * @return CDP page script tag
+	 */
 	public String getCategoryScript(final RepositoryItem category, final String pageName, final String currency,
 			final String language) {
 		String result = "";
@@ -235,6 +314,20 @@ public class DataConverter extends GenericService {
 		return result;
 	}
 
+	/**
+	 * Creates search result page script tag
+	 * 
+	 * @param searchResults
+	 *            the search results holder, can be obtained from Endeca
+	 *            starting from ATG 10.1.2 or from ATG search engine
+	 * @param pageName
+	 *            the page name
+	 * @param currency
+	 *            the current site currency
+	 * @param language
+	 *            the current site language
+	 * @return search result page page script tag
+	 */
 	public String getSearchPageScript(final SearchResult searchResults, final String pageName, final String currency,
 			final String language) {
 		String result = "";
@@ -257,6 +350,19 @@ public class DataConverter extends GenericService {
 		return result;
 	}
 
+	/**
+	 * Creates my account page script tag
+	 * 
+	 * @param profile
+	 *            ATG customer profile
+	 * @param pageName
+	 *            the page name
+	 * @param currency
+	 *            the current site currency
+	 * @param language
+	 *            the current site language
+	 * @return my account page page script tag
+	 */
 	public String getCustomerDetailScript(final Profile profile, final String pageName, final String currency,
 			final String language) {
 		String result = "";
@@ -294,6 +400,20 @@ public class DataConverter extends GenericService {
 		return result;
 	}
 
+	/**
+	 * Creates basket page script
+	 * 
+	 * @param currentOrder
+	 *            current shopping card order, can be obtained from
+	 *            ShoppingCard.current ATG component
+	 * @param pageName
+	 *            the page name
+	 * @param currency
+	 *            the current site currency
+	 * @param language
+	 *            the current site language
+	 * @return basket page page script tag
+	 */
 	@SuppressWarnings("unchecked")
 	public String getCartScript(Order currentOrder, final String pageName, final String currency, final String language) {
 		String result = "";
@@ -363,6 +483,23 @@ public class DataConverter extends GenericService {
 		return result;
 	}
 
+	/**
+	 * Creates order confirmation page (thank you page) script tag
+	 * 
+	 * @param lastOrder
+	 *            an submitted order, can be obtained from ShoppingCard.last ATG
+	 *            component
+	 * @param userEmail
+	 *            the customer email, usually stored in the first order
+	 *            HardgoodShppingGroup.userAddress up to your customization
+	 * @param pageName
+	 *            the page name
+	 * @param currency
+	 *            the current site currency
+	 * @param language
+	 *            the current site language
+	 * @return order confirmation page script tag
+	 */
 	@SuppressWarnings("unchecked")
 	public String getOrderConfirmationScript(Order lastOrder, String userEmail, final String pageName,
 			final String currency, final String language) {
@@ -373,11 +510,12 @@ public class DataConverter extends GenericService {
 				String siteCurrency = ObjectUtils.defaultIfNull(lastOrder.getPriceInfo().getCurrencyCode(), currency);
 				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_CURRENCY, siteCurrency);
 				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_ID, lastOrder.getId());
-				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.CUSTOMER_ID, lastOrder.getProfileId());
+				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.CUSTOMER_ID,
+						lastOrder.getProfileId());
 				if (StringUtils.isNotBlank(userEmail)) {
 					udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.CUSTOMER_EMAIL, userEmail);
 				}
-				
+
 				OrderPriceInfo priceInfo = lastOrder.getPriceInfo();
 				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_TOTAL,
 						String.valueOf(priceInfo.getTotal()));
@@ -389,14 +527,12 @@ public class DataConverter extends GenericService {
 						String.valueOf(priceInfo.getManualAdjustmentTotal()));
 				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_SUBTOTAL,
 						String.valueOf(priceInfo.getRawSubtotal()));
-				
-				
 
-				final PaymentGroup paymentGroup = Iterables.getFirst((List<PaymentGroup>)lastOrder.getPaymentGroups(), null);
+				final PaymentGroup paymentGroup = Iterables.getFirst((List<PaymentGroup>) lastOrder.getPaymentGroups(),
+						null);
 				// null is not possible for submitted order
 				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_PAYMENT_TYPE,
 						paymentGroup.getPaymentGroupClassType());
-
 
 				List<String> productBrandList = Lists.newLinkedList();
 				List<String> productCategoryList = Lists.newLinkedList();
@@ -422,18 +558,17 @@ public class DataConverter extends GenericService {
 							.getPropertyValue("parentCategories");
 					String category = (String) Iterables.getFirst(parentCategories, null).getPropertyValue("name");
 					String brand = (String) product.getPropertyValue("brand");
-					
-					
+
 					// TODO: Check filds with Patric
-	   				productBrandList.add(brand);
-	   				productCategoryList.add(category);
-	   				productIdList.add(product.getRepositoryId());
-	   				productListPriceList.add(basePrice);
-	   				productNameList.add(name);
-	   				productQuantityList.add(quantity);
-	   				productSkuList.add(sku);
-	   				productUnitPriceList.add(String.valueOf(itemPriceInfo.getSalePrice()));
-	   				productDiscountList.add(String.valueOf(itemPriceInfo.getOrderDiscountShare()));
+					productBrandList.add(brand);
+					productCategoryList.add(category);
+					productIdList.add(product.getRepositoryId());
+					productListPriceList.add(basePrice);
+					productNameList.add(name);
+					productQuantityList.add(quantity);
+					productSkuList.add(sku);
+					productUnitPriceList.add(String.valueOf(itemPriceInfo.getSalePrice()));
+					productDiscountList.add(String.valueOf(itemPriceInfo.getOrderDiscountShare()));
 				}
 
 				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, "checkout")

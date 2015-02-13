@@ -2,8 +2,7 @@ package com.tealium.connector;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,11 +11,14 @@ import java.io.Reader;
 import java.net.URL;
 import java.nio.CharBuffer;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import atg.beans.PropertyNotFoundException;
@@ -40,6 +42,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.tealium.config.TealiumConfiguration;
 import com.tealium.connector.search.SearchResult;
+import com.tealium.util.udohelpers.TealiumHelper.PrebuiltUDOPageTypes;
+import com.tealium.util.udohelpers.exceptions.UDODefinitionException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataConverterTestCase {
@@ -107,7 +111,7 @@ public class DataConverterTestCase {
 				this.testInstance.getSyncTag().contains(
 						"src=\"//tags.tiqcdn.com/utag/testAccount/testProfile/testEnv/utag.sync.js\""));
 	}
-
+	
 	@Test
 	public void shouldProduceEmptyStrWhenUtagSynckDisabled() throws Exception {
 		this.config.setUtagSyncEnabled(false);
@@ -126,6 +130,19 @@ public class DataConverterTestCase {
 		assertTrue("Should be en empty string",
 				StringUtils.isBlank(this.testInstance.getGenericPageScript("testPage", "USD", "en")));
 	}
+	
+	@Test
+	public void shouldReturnErrorScriptWhenException() throws Exception {
+		this.config.setUtagSyncEnabled(true);
+		this.config.setEnvironmentName(null);
+		DataConverter spy = Mockito.spy(this.testInstance);
+		doThrow(UDODefinitionException.class).when(spy).setupUDO(any(PrebuiltUDOPageTypes.class),anyString(), anyString(), anyString());
+		final Pattern refIDrx = Pattern.compile("(?s)^(<!-{2}.+)(ID:\\s+-{0,1}\\d{10})(.+-{2}>)$");
+		String errorComment = spy.getGenericPageScript("testPage", "USD", "en");
+		Matcher matcher = refIDrx.matcher(errorComment);
+		assertTrue("Error string not matches the expression", matcher.matches() );
+	}
+
 
 	@Test
 	public void shoulProduceHomeScript() throws Exception {
