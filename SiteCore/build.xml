@@ -83,7 +83,19 @@
 		<jar destfile="${config.jar}" basedir="${conf.dir}" />
 	</target>
 
-	<target name="distr" depends="build,package">
+	<target name="doc">
+		<mkdir dir="${build.dir}/doc" />
+		<javadoc sourcepath="${src.dir}" destdir="${build.dir}/doc" packagenames="com.tealium.*" windowtitle="Tealium Site Core">
+			<classpath refid="dynamo.classpath" />
+			<classpath refid="module.classpath" />
+			<link href="http://docs.oracle.com/javase/7/docs/api/" packagelistloc="java.*" />
+			<link href="http://docs.oracle.com/cd/E52191_02/Platform.11-1/apidoc/" packagelistloc="atg.*" />
+		</javadoc>
+		<jar destfile="${build.dir}/atg-tealium-site-core-apidoc.jar" basedir="${build.dir}/doc"/>
+		<delete dir="${build.dir}/doc"/>
+	</target>
+
+	<target name="distr" depends="build,package,doc">
 		<tstamp>
 			<format property="TODAY" pattern="yyyymmdd" locale="en,US" />
 		</tstamp>

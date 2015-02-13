@@ -92,7 +92,7 @@ public class DataConverter extends GenericService {
 		return udo;
 	}
 
-	public TealiumHelper setupTealiumHelper() throws UDODefinitionException, UDOUpdateException {
+	private TealiumHelper setupTealiumHelper() throws UDODefinitionException, UDOUpdateException {
 		final String accountString = getConfiguration().getAccountName();
 		final String profileString = getConfiguration().getProfileName();
 		final String targetString = getConfiguration().getEnvironmentName();// Config.getParameter("tealiumIQ.target");;
