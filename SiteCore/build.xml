@@ -84,6 +84,9 @@
 	</target>
 
 	<target name="distr" depends="build,package">
+		<tstamp>
+			<format property="TODAY" pattern="yyyymmdd" locale="en,US" />
+		</tstamp>
 		<delete dir="${build.dir}/Tealium/SiteCore" />
 		<mkdir dir="${build.dir}/Tealium/SiteCore" />
 		<copy file="${config.jar}" todir="${build.dir}/Tealium/SiteCore/config" />
@@ -95,7 +98,10 @@
 		<copy todir="${build.dir}/Tealium/SiteCore/META-INF">
 			<fileset dir="${module.dir}/META-INF" includes="**/**" />
 		</copy>
-		<mkdir dir="${build.dir}/Tealium/META-INF"/>
+		<manifest file="${build.dir}/Tealium/SiteCore/META-INF/MANIFEST.MF" mode="update">
+			<attribute name="ATG-Date" value="${TODAY}" />
+		</manifest>
+		<mkdir dir="${build.dir}/Tealium/META-INF" />
 		<manifest file="${build.dir}/Tealium/META-INF/MANIFEST.MF">
 			<attribute name="ATG-Product" value="Tealium" />
 			<attribute name="ATG-Date" value="${TODAY}" />
