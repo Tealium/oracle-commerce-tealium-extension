@@ -66,7 +66,7 @@ public class DataConverter extends GenericService {
 	 *            starting from ATG 10
 	 * @param language
 	 *            the current site language, can be obtained from ATG site
-	 *            locale strging form ATG 11
+	 *            locale form ATG 11
 	 * @return the new UDO
 	 * @throws UDODefinitionException
 	 *             in case of UDO creation error

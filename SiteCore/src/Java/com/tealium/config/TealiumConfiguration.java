@@ -62,7 +62,6 @@ public class TealiumConfiguration extends GenericService {
 		this.siteCoreScriptURL = siteCoreScriptURL;
 	}
 
-	// TODO: Add documentation
 	public String getUtagSyncScriptURL() {
 		return utagSyncScriptURL;
 	}

@@ -27,6 +27,10 @@
 	<echo message="${modules}" />
 	-->
 
+	<target name="clean">
+		<delete dir="${build.dir}" />
+	</target>
+
 	<target name="compile">
 		<delete dir="${classes.dir}" />
 		<mkdir dir="${classes.dir}" />
@@ -79,8 +83,33 @@
 		<jar destfile="${config.jar}" basedir="${conf.dir}" />
 	</target>
 
-	<target name="build" depends="compile,test,package" />
+	<target name="distr" depends="build,package">
+		<delete dir="${build.dir}/Tealium/SiteCore" />
+		<mkdir dir="${build.dir}/Tealium/SiteCore" />
+		<copy file="${config.jar}" todir="${build.dir}/Tealium/SiteCore/config" />
+		<mkdir dir="${build.dir}/Tealium/SiteCore/lib" />
+		<copy todir="${build.dir}/Tealium/SiteCore/lib">
+			<fileset dir="${module.lib.dir}" includes="**/*.jar" />
+		</copy>
+		<copy file="${classes.jar}" todir="${build.dir}/Tealium/SiteCore/lib" />
+		<copy todir="${build.dir}/Tealium/SiteCore/META-INF">
+			<fileset dir="${module.dir}/META-INF" includes="**/**" />
+		</copy>
+		<mkdir dir="${build.dir}/Tealium/META-INF"/>
+		<manifest file="${build.dir}/Tealium/META-INF/MANIFEST.MF">
+			<attribute name="ATG-Product" value="Tealium" />
+			<attribute name="ATG-Date" value="${TODAY}" />
+		</manifest>
+		<zip destfile="${build.dir}/atg-tealium-module.zip" compress="true" level="9">
+			<zipfileset dir="${build.dir}/Tealium" prefix="Tealium" />
+		</zip>
+		<tar destfile="${build.dir}/atg-tealium-module.tar.bz2" compression="bzip2">
+			<zipfileset dir="${build.dir}/Tealium" prefix="Tealium" />
+		</tar>
+		<delete dir="${build.dir}/Tealium" />
+	</target>
 
+	<target name="build" depends="clean,compile,test" />
 
 	<path id="dynamo.classpath">
 		<fileset dir="${atg.dir}/DAS/lib" includes="**/*.jar" />
