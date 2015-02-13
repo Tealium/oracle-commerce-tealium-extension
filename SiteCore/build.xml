@@ -124,7 +124,13 @@
 		<tar destfile="${build.dir}/atg-tealium-module.tar.bz2" compression="bzip2">
 			<zipfileset dir="${build.dir}/Tealium" prefix="Tealium" />
 		</tar>
-		<delete dir="${build.dir}/Tealium" />
+		<delete includeEmptyDirs="true">
+			<fileset dir="${build.dir}" includes="**/**">
+				<exclude name="atg-tealium-module.zip"/>
+				<exclude name="atg-tealium-module.tar.bz2"/>
+				<exclude name="atg-tealium-site-core-apidoc.jar"/>
+			</fileset>
+		</delete>
 	</target>
 
 	<target name="build" depends="clean,compile,test" />
