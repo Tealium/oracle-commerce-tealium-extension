@@ -9,9 +9,7 @@ public class TealiumConfiguration extends GenericService {
 
 	private boolean enabled;
 
-	private String siteCoreScriptURL;
-
-	private String utagSyncScriptURL;
+	private String tealiumCDN;
 
 	private String accountName;
 
@@ -48,8 +46,8 @@ public class TealiumConfiguration extends GenericService {
 	 * 
 	 * @return URL on the SiteCore script
 	 */
-	public String getSiteCoreScriptURL() {
-		return siteCoreScriptURL;
+	public String getTealiumCDN() {
+		return tealiumCDN;
 	}
 
 	/**
@@ -58,16 +56,8 @@ public class TealiumConfiguration extends GenericService {
 	 * @param siteCoreScriptURL
 	 *            URL on the SiteCore script
 	 */
-	public void setSiteCoreScriptURL(String siteCoreScriptURL) {
-		this.siteCoreScriptURL = siteCoreScriptURL;
-	}
-
-	public String getUtagSyncScriptURL() {
-		return utagSyncScriptURL;
-	}
-
-	public void setUtagSyncScriptURL(String utagSyncScriptURL) {
-		this.utagSyncScriptURL = utagSyncScriptURL;
+	public void setTealiumCDN(String siteCoreScriptURL) {
+		this.tealiumCDN = siteCoreScriptURL;
 	}
 
 	/**

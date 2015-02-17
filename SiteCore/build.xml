@@ -21,6 +21,7 @@
 	<property name="module.dir" location="${basedir}" />
 	<property name="module.lib.dir" location="${module.dir}/lib" />
 	<property name="module.testlib.dir" location="${module.dir}/testlib" />
+	<property name="module.apidoc.dir" location="${module.dir}/apidoc" />
 
 	<!--
 	<property name="modules" value="${module},DCS.PublishingAgent,DafEar.Admin" />
@@ -85,11 +86,13 @@
 
 	<target name="doc">
 		<mkdir dir="${build.dir}/doc" />
+		<unzip src="${module.apidoc.dir}/tealium_udo_helper_1_2_0-javadoc.jar" dest="${build.dir}/hlpdoc"/>
 		<javadoc sourcepath="${src.dir}" destdir="${build.dir}/doc" packagenames="com.tealium.*" windowtitle="Tealium Site Core">
 			<classpath refid="dynamo.classpath" />
 			<classpath refid="module.classpath" />
 			<link href="http://docs.oracle.com/javase/7/docs/api/" packagelistloc="java.*" />
 			<link href="http://docs.oracle.com/cd/E52191_02/Platform.11-1/apidoc/" packagelistloc="atg.*" />
+			<link offline="true" href="http://tealium.com/sitecore/docs/api" packagelistloc="com.tealium.*" packagelistLoc="${build.dir}/hlpdoc/docs"/>
 		</javadoc>
 		<jar destfile="${build.dir}/atg-tealium-site-core-apidoc.jar" basedir="${build.dir}/doc"/>
 		<delete dir="${build.dir}/doc"/>
@@ -124,6 +127,7 @@
 		<tar destfile="${build.dir}/atg-tealium-module.tar.bz2" compression="bzip2">
 			<zipfileset dir="${build.dir}/Tealium" prefix="Tealium" />
 		</tar>
+		<!--
 		<delete includeEmptyDirs="true">
 			<fileset dir="${build.dir}" includes="**/**">
 				<exclude name="atg-tealium-module.zip"/>
@@ -131,6 +135,7 @@
 				<exclude name="atg-tealium-site-core-apidoc.jar"/>
 			</fileset>
 		</delete>
+		-->
 	</target>
 
 	<target name="build" depends="clean,compile,test" />

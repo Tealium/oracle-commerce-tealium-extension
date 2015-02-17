@@ -16,8 +16,7 @@ public class SiteCoreHomePageDroplet extends SiteCoreBaseDroplet {
 		final String currency = getCurrency(req);
 		final String language = getLanguage(req);
 		final String scriptStr = getConverter().getHomeScript(pageName, currency, language);
-		vlogDebug("Generated script: {0}", scriptStr);
-		res.getOutputStream().print(scriptStr);
+		serviceScript(scriptStr, res);
 	}
 
 }
