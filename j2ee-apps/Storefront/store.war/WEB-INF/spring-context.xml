@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+                           
+  <bean name="/NucleusPublisher" class="atg.nucleus.spring.NucleusPublisher" 
+        scope="singleton">
+    <property name="nucleusPath">
+      <value>/atg/spring/FromSpring</value>
+    </property>
+  </bean>
+  
+  <import resource="endeca-seo-url-config.xml"/>
+   
+</beans>
+<!-- @version $Id: //hosting-blueprint/B2CBlueprint/version/11.0/Storefront/j2ee/store.war/WEB-INF/spring-context.xml#1 $$Change: 848678 $-->

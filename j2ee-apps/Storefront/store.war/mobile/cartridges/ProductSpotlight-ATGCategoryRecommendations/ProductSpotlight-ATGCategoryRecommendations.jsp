@@ -1,0 +1,1 @@
+<%-- @version $Id: //hosting-blueprint/B2CBlueprint/version/11.0/Storefront/j2ee/store.war/mobile/cartridges/ProductSpotlight-ATGCategoryRecommendations/ProductSpotlight-ATGCategoryRecommendations.jsp#1 $$Change: 848678 $--%>

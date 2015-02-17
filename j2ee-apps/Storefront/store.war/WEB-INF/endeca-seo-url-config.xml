@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+  <!--
+    BEAN: queryBuilder
+    
+    A basic query builder that is used to transform UrlState objects into 
+    ENEQuery objects.
+  -->
+  <bean id="queryBuilder" 
+        class="com.endeca.soleng.urlformatter.basic.BasicQueryBuilder">
+
+    <property name="queryEncoding">
+      <value>UTF-8</value>
+    </property>
+
+    <property name="baseUrlENEQuery">
+      <null/>
+    </property>
+
+    <property name="baseNavigationUrlENEQuery">
+      <null/>
+    </property>
+
+    <property name="baseERecUrlENEQuery">
+      <null/>
+    </property>
+
+    <property name="baseAggrERecUrlENEQuery">
+      <null/>
+    </property>
+
+    <property name="defaultUrlENEQuery">
+      <value>N=0</value>
+    </property>
+
+  </bean>
+
+  <!--
+    BEAN: seoUrlFormatter
+    
+    This is the top-level URL formatter. It is responsible for transforming 
+    UrlState objects into URL strings.
+  -->
+  <bean id="seoUrlFormatter" 
+        class="com.endeca.soleng.urlformatter.seo.SeoUrlFormatter">
+ 
+    <property name="useNavStateCanonicalizer">
+      <value>false</value>
+    </property>
+	  
+    <property name="defaultEncoding">
+      <value>UTF-8</value>
+    </property>
+
+    <property name="pathSeparatorToken">
+      <value>_</value>
+    </property>
+
+    <property name="pathKeyValueSeparator">
+      <value>-</value>
+    </property>
+
+    <property name="pathParamKeys">
+      <list>
+        <value>R</value>
+        <value>A</value>
+        <value>N</value>
+      </list>
+    </property>
+
+    <property name="navStateFormatter">
+      <ref bean="navStateFormatter"/>
+    </property>
+
+    <property name="ERecFormatter">
+      <ref bean="erecFormatter"/>
+    </property>
+
+    <property name="aggrERecFormatter">
+      <ref bean="aggrERecFormatter"/>
+    </property>
+
+    <property name="urlParamEncoders">
+      <list>
+        <ref bean="N-paramEncoder"/>
+        <ref bean="Ne-paramEncoder"/>
+        <ref bean="An-paramEncoder"/>
+      </list>
+    </property>
+
+  </bean>
+
+  <!--
+    BEAN: navStateFormatter
+    
+    This formatter is used to transform a navigation state (DimLocationList)
+    into a sequence of miscellaneous URL strings.
+  -->
+  <bean id="navStateFormatter" 
+        class="com.endeca.soleng.urlformatter.seo.SeoNavStateFormatter">
+
+    <property name="useDimensionNameAsKey">
+      <value>true</value>
+    </property>
+
+    <property name="dimLocationFormatters">
+      <list>
+	      <ref bean="categoryFormatter"/>
+	      <ref bean="brandFormatter"/>
+      </list>
+    </property>
+
+  </bean>
+
+  <!--
+    BEAN: navStateCanonicalizer
+    
+    This object is used to canonicalize the navigation state before
+    formatting a specified URL.
+  -->
+  <bean name="navStateCanonicalizer" 
+        class="com.endeca.soleng.urlformatter.seo.SeoNavStateCanonicalizer">
+
+    <property name="sortByName">
+      <value>true</value>
+    </property>
+
+    <property name="sortByDimension">
+      <value>true</value>
+    </property>
+
+    <property name="ascending">
+      <value>true</value>
+    </property>
+
+    <property name="ignoreCase">
+      <value>false</value>
+    </property>
+
+  </bean>
+
+  <!--
+    BEAN: N-paramEncoder
+   
+    This encoder is used to encode and decode the N parameter.
+  -->
+  <bean name="N-paramEncoder" 
+        class="com.endeca.soleng.urlformatter.seo.SeoNavStateEncoder">
+    <property name="paramKey">
+      <value>N</value>
+    </property>
+  </bean>
+
+  <!--
+    BEAN: An-paramEncoder
+   
+    This encoder is used to encode and decode the An parameter.
+  -->
+  <bean name="An-paramEncoder" 
+        class="com.endeca.soleng.urlformatter.seo.SeoNavStateEncoder">
+    <property name="paramKey">
+      <value>An</value>
+    </property>
+  </bean>
+
+  <!--
+    BEAN: Ne-paramEncoder
+   
+    This encoder is used to encode and decode the Ne parameter.
+  -->
+  <bean name="Ne-paramEncoder" 
+        class="com.endeca.soleng.urlformatter.seo.SeoNavStateEncoder">
+    <property name="paramKey">
+      <value>Ne</value>
+    </property>
+  </bean>
+
+  <!--
+    BEAN: erecFormatter
+   
+    This formatter is used to transform ERec objects into a sequence of
+    miscellaneous URL strings.
+  -->
+  <bean id="erecFormatter" 
+        class="com.endeca.soleng.urlformatter.seo.SeoERecFormatter">
+
+    <property name="useDimensionNameAsKey">
+      <value>true</value>
+    </property>
+
+    <property name="dimLocationFormatters">
+      <list>
+		    <ref bean="categoryFormatter"/>
+		    <ref bean="brandFormatter"/>
+      </list>
+    </property>
+
+    <property name="propertyFormatter">
+      <ref bean="defaultStringFormatterChain"/>
+    </property>
+
+  </bean>
+
+  <!--
+    BEAN: aggrERecFormatter
+   
+    This formatter is used to transform AggrERec objects into a sequence of
+    miscellaneous URL strings.
+  -->
+  <bean id="aggrERecFormatter" 
+        class="com.endeca.soleng.urlformatter.seo.SeoAggrERecFormatter">
+
+    <property name="useDimensionNameAsKey">
+      <value>true</value>
+    </property>
+
+    <property name="dimLocationFormatters">
+      <list>
+         <ref bean="brandFormatter"/>
+      </list>
+    </property>
+
+    <property name="propertyFormatter">
+      <ref bean="defaultStringFormatterChain"/>
+    </property>
+    
+  </bean>
+
+  <!--
+    BEAN: categoryFormatter
+   
+    Formatter for DimLocation objects from the product.category dimension.
+  -->
+  <bean id="categoryFormatter"
+        class="com.endeca.soleng.urlformatter.seo.SeoDimLocationFormatter">
+
+    <property name="key">
+      <value>product.category</value>
+    </property>
+
+    <property name="appendRoot">
+      <value>false</value>
+    </property>
+
+    <property name="appendAncestors">
+      <value>true</value>
+    </property>
+
+    <property name="appendDescriptor">
+      <value>true</value>
+    </property>
+
+    <property name="separator">
+      <value>-</value>
+    </property>
+
+    <property name="rootStringFormatter">
+
+      <bean class="com.endeca.soleng.urlformatter.seo.StringFormatterChain">
+        <property name="stringFormatters">
+          <list>
+            <!-- replace 'product.category' with 'Category' -->
+            <bean class="com.endeca.soleng.urlformatter.seo.RegexStringFormatter">
+              <property name="pattern">
+                <value>product.category</value>
+              </property>
+
+              <property name="replacement">
+                <value>Category</value>
+              </property>
+
+              <property name="replaceAll">
+                <value>false</value>
+              </property>
+            </bean>
+
+            <!-- Execute the default string formatter chain -->
+            <ref bean="defaultStringFormatterChain"/>
+          </list>
+        </property>
+      </bean>
+    </property>
+
+    <property name="dimValStringFormatter">
+      <ref bean="defaultStringFormatterChain"/>
+    </property>
+
+  </bean> 
+  
+  <!--
+    BEAN: brandFormatter
+   
+    Formatter for DimLocation objects from the 'product.brand' dimension.
+  -->
+  <bean id="brandFormatter"
+        class="com.endeca.soleng.urlformatter.seo.SeoDimLocationFormatter">
+
+    <property name="key">
+      <value>product.brand</value>
+    </property>
+
+    <property name="appendRoot">
+      <value>true</value>
+    </property>
+
+    <property name="appendAncestors">
+      <value>true</value>
+    </property>
+
+    <property name="appendDescriptor">
+      <value>true</value>
+    </property>
+
+    <property name="separator">
+      <value>-</value>
+    </property>
+
+    <property name="rootStringFormatter">
+
+      <bean class="com.endeca.soleng.urlformatter.seo.StringFormatterChain">
+        <property name="stringFormatters">
+          <list>
+            <!-- Replace 'product.brand' with 'Brand' -->
+            <bean class="com.endeca.soleng.urlformatter.seo.RegexStringFormatter">
+              <property name="pattern">
+                <value>product.brand</value>
+              </property>
+
+              <property name="replacement">
+                <value>Brand</value>
+              </property>
+
+              <property name="replaceAll">
+                <value>false</value>
+              </property>
+            </bean>
+
+            <!-- Execute the default string formatter chain -->
+            <ref bean="defaultStringFormatterChain"/>
+
+          </list>
+        </property>
+      </bean>
+    </property>
+
+    <property name="dimValStringFormatter">
+      <ref bean="defaultStringFormatterChain"/>
+    </property>
+
+  </bean>
+
+  <!--
+    BEAN: defaultStringFormatterChain
+   
+    This is the default string formatter chain. It is used when
+    formatting miscellaneous URL strings.
+  -->
+  <bean name="defaultStringFormatterChain"
+        class="com.endeca.soleng.urlformatter.seo.StringFormatterChain">
+
+    <property name="stringFormatters">
+      <list>
+        <!--
+          Replace all non-word character sequences with a single '-'.
+        -->
+        <bean class="com.endeca.soleng.urlformatter.seo.RegexStringFormatter">
+          <property name="pattern">
+            <value><![CDATA[[\W_&&[^\u00C0-\u00FF]]+]]></value>
+          </property>
+
+          <property name="replacement">
+            <value>-</value>
+          </property>
+
+          <property name="replaceAll">
+            <value>true</value>
+          </property>
+        </bean>
+
+        <!--
+          Trim leading and trailing '-' characters (if any)
+        -->
+        <bean class="com.endeca.soleng.urlformatter.seo.RegexStringFormatter">
+          <property name="pattern">
+            <value>
+              <![CDATA[^-?([\w\u00C0-\u00FF][\w-\u00C0-\u00FF]*[\w\u00C0-\u00FF])-?$]]>
+            </value>
+          </property>
+
+          <property name="replacement">
+            <value>$1</value>
+          </property>
+
+          <property name="replaceAll">
+            <value>false</value>
+          </property>
+        </bean>
+
+      </list>
+    </property>
+  </bean>
+
+</beans>
+<!-- @version $Id: //hosting-blueprint/B2CBlueprint/version/11.0/Storefront/j2ee/store.war/WEB-INF/endeca-seo-url-config.xml#1 $$Change: 848678 $-->

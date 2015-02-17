@@ -1,0 +1,13 @@
+<%--
+  This gadget renders a selected SKU's price, or product's price range if no SKU selected yet.
+
+  Directly included into outer page, no parameters.
+--%>
+
+<div class="atg_store_productPrice">
+  <dsp:include page="/global/gadgets/priceDisplay.jsp">
+    <dsp:param name="product" param="product"/>
+    <dsp:param name="sku" param="selectedSku"/>
+  </dsp:include>
+</div>
+<%-- @version $Id: //hosting-blueprint/B2CBlueprint/version/11.0/Storefront/j2ee/store.war/browse/gadgets/pickerPriceAttribute.jspf#1 $$Change: 848678 $--%>

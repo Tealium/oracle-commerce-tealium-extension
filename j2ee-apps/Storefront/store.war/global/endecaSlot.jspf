@@ -1,0 +1,50 @@
+<%--
+  Includes the pageHead tag in each Endeca slot page
+  
+  Required Parameters:
+    None
+    
+  Optional Parameters:
+    None
+ --%>
+<dsp:importbean bean="/OriginatingRequest" var="originatingRequest"/>
+<dsp:getvalueof var="contentItem" vartype="com.endeca.infront.assembler.ContentItem" value="${originatingRequest.contentItem}"/>
+<dsp:getvalueof var="previewEnabled" bean="/atg/endeca/assembler/cartridge/manager/AssemblerSettings.previewEnabled"/>
+      
+<c:choose>
+  <c:when test="${previewEnabled}">
+    <%--
+      When in an Endeca preview environment include the paths to the Endeca
+      preview Javascript and CSS files.
+    --%>
+    <c:if test="${empty pageHeadDefined}">
+      <%--
+        We need to ensure that that the DOCTYPE is the first thing
+        that is sent to the browser as part of the HTML response.
+        So before including the Endeca preview JavaScript and CSS
+        files set the DOCTYPE and open the HTML and HEAD tags to
+        ensure the scripts are included in the correct place.
+        NOTE: when making changes to the DOCTYPE also make those
+        changes in pageStart.jsp
+      --%>
+      <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+      <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+      <head>
+      <endeca:pageHead rootContentItem="${contentItem}"/>
+      <c:set var="pageHeadDefined" scope="request" value="true"/>
+    </c:if>
+      
+    <endeca:includeSlot contentItem="${contentItem}">
+      <c:forEach var="element" items="${contentItem.contents}">
+        <dsp:renderContentItem contentItem="${element}"/>
+      </c:forEach>
+    </endeca:includeSlot>
+  </c:when>
+  <c:otherwise>
+    <c:forEach var="element" items="${contentItem.contents}">
+      <dsp:renderContentItem contentItem="${element}"/>
+    </c:forEach>
+  </c:otherwise>
+</c:choose>
+<%-- @version $Id: //hosting-blueprint/B2CBlueprint/version/11.0/Storefront/j2ee/store.war/global/endecaSlot.jspf#1 $$Change: 848678 $--%>
