@@ -29,6 +29,10 @@
   <dsp:importbean bean="/atg/endeca/assembler/cartridge/StoreCartridgeTools" var="StoreCartridgeTools"/>
   <dsp:importbean bean="/atg/commerce/catalog/CategoryLookup"/>
   <dsp:importbean bean="/atg/store/StoreConfiguration" var="storeConfiguration"/>
+  <%-- Tealium SiteCore droplets --%>
+  <dsp:importbean bean="/tealium/droplet/UtagSyncDroplet"/>
+  <dsp:importbean bean="/tealium/droplet/SiteCoreGenericPageDroplet"/>
+  
   
   <dsp:getvalueof var="contextPath" bean="/OriginatingRequest.contextPath"/>
   <dsp:getvalueof var="language" bean="/OriginatingRequest.requestLocale.locale.language"/>
@@ -45,6 +49,11 @@
   <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
   </c:if>
+       
+	   <%-- Serve the Tealium SiteCore utagsync script --%>
+	   <dsp:droplet name="UtagSyncDroplet">
+	   </dsp:droplet>
+	   
       <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
  
       <%--
@@ -181,5 +190,15 @@
 
     <dsp:getvalueof var="bodyClass" param="bodyClass"/>
   <body class="${bodyClass}">
+  
+  <%-- Serve Tealium generic page script, if not page specific requarements --%>
+   <c:if test="${not dataPage}">
+		<dsp:droplet name="SiteCoreGenericPageDroplet"/>
+			<dsp:param name="pageName" value="${pageName}"/>
+			<dsp:param name="language" value="${currentSite.defaultCountry}_${currentSite.defaultLanguage}"/>
+			<dsp:param name="currency" value="${currentSite.defaultCurrency}"/>
+		<dsp:droplet/>
+   </c:if>	
+  
 </dsp:page>
 <%-- @version $Id: //hosting-blueprint/B2CBlueprint/version/11.0/Storefront/j2ee/store.war/includes/pageStart.jsp#1 $$Change: 848678 $--%>
