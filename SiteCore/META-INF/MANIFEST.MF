@@ -1,9 +1,6 @@
-Manifest-Version: 1.0.a
 ATG-Product: Tealium/SiteCore	
-ATG-Required: DAS, DPS, DCS, DSS
+ATG-Required: DAS DPS DCS DSS
 ATG-Class-Path: lib/classes.jar lib/tealium_udo_helper_1_2_0.jar lib/guava-16.0.1.jar lib/commons-lang3-3.2.1.jar
 ATG-Config-Path: config/config.jar
 ATG-Client-Class-Path: lib/classes.jar lib/tealium_udo_helper_1_2_0.jar lib/guava-16.0.1.jar lib/commons-lang3-3.2.1.jar
-
-
 

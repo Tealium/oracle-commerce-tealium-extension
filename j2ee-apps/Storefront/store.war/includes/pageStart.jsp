@@ -32,7 +32,7 @@
   <%-- Tealium SiteCore droplets --%>
   <dsp:importbean bean="/tealium/droplet/UtagSyncDroplet"/>
   <dsp:importbean bean="/tealium/droplet/SiteCoreGenericPageDroplet"/>
-  
+  <dsp:importbean bean="/tealium/droplet/SiteCoreCategoryPageDroplet"/>  
   
   <dsp:getvalueof var="contextPath" bean="/OriginatingRequest.contextPath"/>
   <dsp:getvalueof var="language" bean="/OriginatingRequest.requestLocale.locale.language"/>
@@ -188,17 +188,42 @@
       <dsp:include page="/includes/pageStartScript.jsp"/>
     </head>
 
-    <dsp:getvalueof var="bodyClass" param="bodyClass"/>
+  <dsp:getvalueof var="bodyClass" param="bodyClass"/>
   <body class="${bodyClass}">
   
-  <%-- Serve Tealium generic page script, if not page specific requarements --%>
-   <c:if test="${not dataPage}">
-		<dsp:droplet name="SiteCoreGenericPageDroplet"/>
-			<dsp:param name="pageName" value="${pageName}"/>
-			<dsp:param name="language" value="${currentSite.defaultCountry}_${currentSite.defaultLanguage}"/>
-			<dsp:param name="currency" value="${currentSite.defaultCurrency}"/>
-		<dsp:droplet/>
-   </c:if>	
+  <dsp:importbean bean="/OriginatingRequest" var="originatingRequest"/>
+  <dsp:getvalueof var="contentItem" vartype="com.endeca.infront.assembler.ContentItem" value="${originatingRequest.contentItem}"/>
   
+  <dsp:getvalueof var="dataPage" param="dataPage"/>
+  
+  <%-- Serve Tealium generic page script, if not page specific requarements --%>
+   <c:choose>  
+	<c:when test="${not StoreCartridgeTools.userOnCategoryPage}"> 
+		<%-- Display generic page tag when unknow page type --%>
+		<dsp:droplet name="SiteCoreGenericPageDroplet">
+			<dsp:param name="pageName" value="${rootContentItem}"/>
+			<dsp:param name="language" value="${currentSite.defaultLanguage}_${currentSite.defaultCountry}"/>
+			<dsp:param name="currency" value="USD"/>
+		</dsp:droplet>
+	</c:when>
+	<c:otherwise>
+		<%-- Display category infomration on category page --%>
+		 <dsp:getvalueof var="currentCategoryId" value="${StoreCartridgeTools.currentCategoryId}"/>
+		 <c:if test="${not empty currentCategoryId}">
+	           <dsp:droplet name="CategoryLookup">
+	           		<dsp:param name="id" value="${currentCategoryId}"/>      
+	            	<dsp:oparam name="output">
+	            		<dsp:droplet name="SiteCoreCategoryPageDroplet">
+	            				<dsp:param name="category" param="element"/>
+	            				<dsp:param name="pageName" value="${rootContentItem}"/>
+								<dsp:param name="language" value="${currentSite.defaultLanguage}_${currentSite.defaultCountry}"/>
+								<dsp:param name="currency" value="USD"/>
+	            		</dsp:droplet>
+	            	</dsp:oparam>
+	            </dsp:droplet>
+          </c:if> 
+	</c:otherwise>
+   </c:choose>
+ 
 </dsp:page>
 <%-- @version $Id: //hosting-blueprint/B2CBlueprint/version/11.0/Storefront/j2ee/store.war/includes/pageStart.jsp#1 $$Change: 848678 $--%>

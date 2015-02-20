@@ -7,5 +7,18 @@
          version="2.4">
 <display-name>Commerce Reference Store docroot</display-name>
 
+<servlet>
+    <servlet-name>jsp</servlet-name>
+    <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
+    <init-param>
+        <param-name>checkInterval</param-name>
+        <param-value>1</param-value>
+    </init-param>
+    <init-param>
+        <param-name>modificationTestInterval</param-name>
+        <param-value>1</param-value>
+    </init-param>
+</servlet>
+
 </web-app>
 <!-- @version $Id: //hosting-blueprint/B2CBlueprint/version/11.0/Storefront/j2ee/storedocroot.war/WEB-INF/web.xml#1 $$Change: 848678 $-->

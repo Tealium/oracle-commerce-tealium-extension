@@ -300,7 +300,7 @@ public class DataConverter extends GenericService {
 			try {
 				UDO udo = setupUDO(PrebuiltUDOPageTypes.CATEGORY, pageName, currency, language);
 				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, "product");
-				final String categoryName = (String) category.getPropertyValue("name");
+				final String categoryName = (String) category.getPropertyValue("displayName");
 				if (StringUtils.isNotBlank(categoryName)) {
 					udo.setValue(TealiumHelper.CategoryPageUDO.PredefinedUDOFields.PAGE_CATEGORY_NAME, categoryName);
 				}

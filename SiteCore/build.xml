@@ -35,7 +35,7 @@
 	<target name="compile">
 		<delete dir="${classes.dir}" />
 		<mkdir dir="${classes.dir}" />
-		<javac srcdir="${src.dir}" destdir="${classes.dir}" includeantruntime="false" debug="false" source="1.7" target="1.7" encoding="UTF-8">
+		<javac srcdir="${src.dir}" destdir="${classes.dir}" includeantruntime="false" debug="true" source="1.7" target="1.7" encoding="UTF-8">
 			<classpath refid="dynamo.classpath" />
 			<classpath refid="module.classpath" />
 			<include name="**/*.java" />
@@ -45,7 +45,7 @@
 	<target name="testCompile">
 		<delete dir="${testclasses.dir}" />
 		<mkdir dir="${testclasses.dir}" />
-		<javac srcdir="${src.test.dir}" destdir="${testclasses.dir}" includeantruntime="false" debug="false" source="1.7" target="1.7" encoding="UTF-8">
+		<javac srcdir="${src.test.dir}" destdir="${testclasses.dir}" includeantruntime="false" debug="true" source="1.7" target="1.7" encoding="UTF-8">
 			<classpath refid="dynamo.classpath" />
 			<classpath refid="module.classpath" />
 			<classpath refid="test.libs" />
