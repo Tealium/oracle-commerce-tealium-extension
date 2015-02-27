@@ -16,6 +16,7 @@ import atg.commerce.order.Order;
 import atg.commerce.order.PaymentGroup;
 import atg.commerce.pricing.ItemPriceInfo;
 import atg.commerce.pricing.OrderPriceInfo;
+import atg.commerce.pricing.PricingException;
 import atg.commerce.pricing.PricingTools;
 import atg.core.util.StringUtils;
 import atg.nucleus.GenericService;
@@ -224,15 +225,15 @@ public class DataConverter extends GenericService {
 							new Function<RepositoryItem, String>() {
 								@Override
 								public String apply(RepositoryItem item) {
-									return (String) item.getPropertyValue("name");
+									return (String) item.getPropertyValue("displayName");
 								}
 
 							});
 				}
+				
 				String productBrand = (String) product.getPropertyValue("brand");
-				String productPrice = String.valueOf((Double) product.getPropertyValue("listPrice"));
-				String productName = (String) product.getPropertyValue("name");
-
+				String productName = (String) product.getPropertyValue("displayName");
+				
 				Collection<RepositoryItem> childSkus = (Collection<RepositoryItem>) product
 						.getPropertyValue(getPricingTools().getChildSKUsPropertyName());
 				List<String> skus = Collections.emptyList();
@@ -248,10 +249,16 @@ public class DataConverter extends GenericService {
 					skusPrices = Lists.transform(prodSkus, new Function<RepositoryItem, String>() {
 						@Override
 						public String apply(RepositoryItem sku) {
-							return String.valueOf((Double) sku.getPropertyValue("listPrice"));
+							try {
+								return String.valueOf(getPricingTools().calculatePrice(product, sku, 1).getRawTotalPrice());
+							} catch (Exception e) {
+								vlogWarning("Can not obtain price from {0} SKU", sku.getRepositoryId());
+							}
+							return "";
 						}
 					});
 				}
+				String productPrice = Iterables.getFirst(skusPrices, "0");
 
 				// TODO: Check about multiple SKU's and categories
 				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, "product");

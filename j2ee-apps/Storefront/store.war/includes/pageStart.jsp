@@ -33,6 +33,7 @@
   <dsp:importbean bean="/tealium/droplet/UtagSyncDroplet"/>
   <dsp:importbean bean="/tealium/droplet/SiteCoreGenericPageDroplet"/>
   <dsp:importbean bean="/tealium/droplet/SiteCoreCategoryPageDroplet"/>  
+  <dsp:importbean bean="/tealium/droplet/SiteCoreProductDetailDroplet"/>
   
   <dsp:getvalueof var="contextPath" bean="/OriginatingRequest.contextPath"/>
   <dsp:getvalueof var="language" bean="/OriginatingRequest.requestLocale.locale.language"/>
@@ -194,35 +195,51 @@
   <dsp:importbean bean="/OriginatingRequest" var="originatingRequest"/>
   <dsp:getvalueof var="contentItem" vartype="com.endeca.infront.assembler.ContentItem" value="${originatingRequest.contentItem}"/>
   
-  <dsp:getvalueof var="dataPage" param="dataPage"/>
-  
   <%-- Serve Tealium generic page script, if not page specific requarements --%>
-   <c:choose>  
-	<c:when test="${not StoreCartridgeTools.userOnCategoryPage}"> 
-		<%-- Display generic page tag when unknow page type --%>
-		<dsp:droplet name="SiteCoreGenericPageDroplet">
-			<dsp:param name="pageName" value="${rootContentItem}"/>
-			<dsp:param name="language" value="${currentSite.defaultLanguage}_${currentSite.defaultCountry}"/>
-			<dsp:param name="currency" value="USD"/>
-		</dsp:droplet>
-	</c:when>
-	<c:otherwise>
+   <dsp:getvalueof var="productId" param="productId"/>
+   <dsp:getvalueof var="siteLocale" value="${currentSite.defaultLanguage}_${currentSite.defaultCountry}" /> 
+   <c:choose>
+   
+   <%-- display product detail script --%>
+   	<c:when test="${not empty productId}">
+		<dsp:droplet name="/atg/commerce/catalog/ProductLookup">
+     		<dsp:param name="id" value="${productId}"/>
+     		<dsp:oparam name="output">
+     	 		<dsp:droplet name="SiteCoreProductDetailDroplet">
+       	   			<dsp:param name="pageName" value="atg_store_pageProductDetail"/>
+		   			<dsp:param name="language" value="${siteLocale}"/>
+		   				<dsp:param name="product" param="element"/>
+           			</dsp:droplet>
+           		</dsp:oparam>
+        </dsp:droplet>	
+	</c:when>  
+	
+	<c:when test="${StoreCartridgeTools.userOnCategoryPage}"> 
 		<%-- Display category infomration on category page --%>
-		 <dsp:getvalueof var="currentCategoryId" value="${StoreCartridgeTools.currentCategoryId}"/>
 		 <c:if test="${not empty currentCategoryId}">
 	           <dsp:droplet name="CategoryLookup">
 	           		<dsp:param name="id" value="${currentCategoryId}"/>      
 	            	<dsp:oparam name="output">
 	            		<dsp:droplet name="SiteCoreCategoryPageDroplet">
 	            				<dsp:param name="category" param="element"/>
-	            				<dsp:param name="pageName" value="${rootContentItem}"/>
-								<dsp:param name="language" value="${currentSite.defaultLanguage}_${currentSite.defaultCountry}"/>
+	            				<dsp:param name="pageName" value="${contentItem.name}"/>
+								<dsp:param name="language" value="${siteLocale}"/>
 								<dsp:param name="currency" value="USD"/>
 	            		</dsp:droplet>
 	            	</dsp:oparam>
 	            </dsp:droplet>
           </c:if> 
+	</c:when>
+	
+	<%-- Display generic page tag when unknow page type --%>
+	<c:otherwise>
+		<dsp:droplet name="SiteCoreGenericPageDroplet">
+			<dsp:param name="pageName" value="${bodyClass}"/>
+			<dsp:param name="language" value="${siteLocale}"/>
+			<dsp:param name="currency" value="USD"/>
+		</dsp:droplet>
 	</c:otherwise>
+	
    </c:choose>
  
 </dsp:page>

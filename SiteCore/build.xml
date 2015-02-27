@@ -95,7 +95,7 @@
 			<link offline="true" href="http://tealium.com/sitecore/docs/api" packagelistloc="com.tealium.*" packagelistLoc="${build.dir}/hlpdoc/docs"/>
 		</javadoc>
 		<jar destfile="${build.dir}/atg-tealium-site-core-apidoc.jar" basedir="${build.dir}/doc"/>
-		<delete dir="${build.dir}/doc"/>
+		<!-- <delete dir="${build.dir}/doc"/> -->
 	</target>
 
 	<target name="distr" depends="build,package,doc">
@@ -138,7 +138,7 @@
 		-->
 	</target>
 
-	<target name="build" depends="clean,compile,test" />
+	<target name="build" depends="clean,compile" />
 
 	<path id="dynamo.classpath">
 		<fileset dir="${atg.dir}/DAS/lib" includes="**/*.jar" />

@@ -158,7 +158,7 @@ public class DataConverterTestCase {
 	@Test
 	public void shouldProduceCategoryScript() throws Exception {
 		final RepositoryItem category = new RepositoryItemMockBuilder("category").setId("TC0")
-				.setProperty("name", "TestCat0").build();
+				.setProperty("displayName", "TestCat0").build();
 		assertEquals(readResource(CDP_TAG), this.testInstance.getCategoryScript(category, "testCDP", "USD", "en"));
 	}
 
