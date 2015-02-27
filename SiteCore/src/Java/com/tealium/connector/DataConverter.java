@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -16,7 +18,6 @@ import atg.commerce.order.Order;
 import atg.commerce.order.PaymentGroup;
 import atg.commerce.pricing.ItemPriceInfo;
 import atg.commerce.pricing.OrderPriceInfo;
-import atg.commerce.pricing.PricingException;
 import atg.commerce.pricing.PricingTools;
 import atg.core.util.StringUtils;
 import atg.nucleus.GenericService;
@@ -49,6 +50,12 @@ public class DataConverter extends GenericService {
 
 	private static final String ERROR_STRING = "<!--  Tealium ERROR \nThere may be an error in your installation, please check you logging.\n"
 			+ "Log refernce ID:  %s\n\t\t  END Tealium ERROR -->";
+	
+	private static final String joinStrings(final Collection<String> collection) {
+		String array[] = new String[collection.size()];
+		collection.toArray(array);
+		return StringUtils.joinStrings(array, ',');
+	}
 
 	private TealiumConfiguration configuration;
 	private TealiumHelper tealiumHelper;
@@ -98,7 +105,7 @@ public class DataConverter extends GenericService {
 		final String accountString = getConfiguration().getAccountName();
 		final String profileString = getConfiguration().getProfileName();
 		final String targetString = getConfiguration().getEnvironmentName();// Config.getParameter("tealiumIQ.target");;
-		return new TealiumHelper(tealiumCDN,accountString, profileString, targetString);
+		return new TealiumHelper(tealiumCDN, accountString, profileString, targetString);
 	}
 
 	private String getExceptionString(Exception exc) {
@@ -230,10 +237,10 @@ public class DataConverter extends GenericService {
 
 							});
 				}
-				
+
 				String productBrand = (String) product.getPropertyValue("brand");
 				String productName = (String) product.getPropertyValue("displayName");
-				
+
 				Collection<RepositoryItem> childSkus = (Collection<RepositoryItem>) product
 						.getPropertyValue(getPricingTools().getChildSKUsPropertyName());
 				List<String> skus = Collections.emptyList();
@@ -250,7 +257,8 @@ public class DataConverter extends GenericService {
 						@Override
 						public String apply(RepositoryItem sku) {
 							try {
-								return String.valueOf(getPricingTools().calculatePrice(product, sku, 1).getRawTotalPrice());
+								return String.valueOf(getPricingTools().calculatePrice(product, sku, 1)
+										.getRawTotalPrice());
 							} catch (Exception e) {
 								vlogWarning("Can not obtain price from {0} SKU", sku.getRepositoryId());
 							}
@@ -260,7 +268,6 @@ public class DataConverter extends GenericService {
 				}
 				String productPrice = Iterables.getFirst(skusPrices, "0");
 
-				// TODO: Check about multiple SKU's and categories
 				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, "product");
 				udo.addArrayValues(TealiumHelper.ProductPageUDO.PredefinedUDOFields.PRODUCT_BRAND,
 						Lists.newArrayList(productBrand));
@@ -272,10 +279,11 @@ public class DataConverter extends GenericService {
 						Lists.newArrayList(productPrice));
 				udo.addArrayValues(TealiumHelper.ProductPageUDO.PredefinedUDOFields.PRODUCT_NAME,
 						Lists.newArrayList(productName));
+				String[] skuArr = new String[skus.size()];
 				udo.addArrayValues(TealiumHelper.ProductPageUDO.PredefinedUDOFields.PRODUCT_SKU,
-						Lists.newArrayList(Iterables.getFirst(skus, "")));
+						Lists.newArrayList(joinStrings(skus)));
 				udo.addArrayValues(TealiumHelper.ProductPageUDO.PredefinedUDOFields.PRODUCT_UNIT_PRICE,
-						Lists.newArrayList(Iterables.getFirst(skusPrices, "")));
+						Lists.newArrayList(joinStrings(skusPrices)));
 
 				result = tealiumHelper.outputFullHtml(udo);
 			} catch (Exception exc) {
@@ -407,6 +415,8 @@ public class DataConverter extends GenericService {
 		}
 		return result;
 	}
+	
+
 
 	/**
 	 * Creates basket page script
@@ -440,30 +450,44 @@ public class DataConverter extends GenericService {
 				// Set total price
 				OrderPriceInfo orderPrice = currentOrder.getPriceInfo();
 				udo.setValue("cart_total", String.valueOf(orderPrice.getTotal()));
-
+				
 				final Collection<CommerceItem> commerceItems = currentOrder.getCommerceItems();
 				for (CommerceItem commerceItem : commerceItems) {
-					final RepositoryItem skuItem = getCatalogTools().getCatalog().getItem(commerceItem.getCatalogId(),
-							"sku");
-					final RepositoryItem product = (RepositoryItem) skuItem.getPropertyValue("parentProduct");
+
+					final RepositoryItem skuItem = getCatalogTools().getCatalog().getItem(
+							commerceItem.getCatalogRefId(), "sku");
+					final Collection<RepositoryItem> parentProducts = (Set<RepositoryItem>) skuItem
+							.getPropertyValue("parentProducts");
+					final Set<String> brands = new TreeSet<String>();
+					final Set<String> productIds = new TreeSet<String>();
+					final Set<String> categories = new TreeSet<String>();
+					for (RepositoryItem parentProduct : parentProducts) {
+						productIds.add(parentProduct.getRepositoryId());
+						String brand = (String) parentProduct.getPropertyValue("brand");
+						brands.add(brand);
+						final Collection<RepositoryItem> parentCategories = (Collection<RepositoryItem>) parentProduct
+								.getPropertyValue("parentCategories");
+						for (RepositoryItem parentCategory : parentCategories) {
+							categories.add((String) parentCategory.getPropertyValue("displayName"));
+						}
+					}
+					productIdList.add(joinStrings(productIds));
+					productBrandList.add(joinStrings(brands));
+					productCategoryList.add(joinStrings(categories));
+
 					String sku = skuItem.getRepositoryId();
-					String name = (String) skuItem.getPropertyValue("name");
+					String name = (String) skuItem.getPropertyValue("displayName");
 					String quantity = String.valueOf(commerceItem.getQuantity());
 					ItemPriceInfo itemPriceInfo = commerceItem.getPriceInfo();
 					String basePrice = String.valueOf(itemPriceInfo.getAmount());
-					final Collection<RepositoryItem> parentCategories = (Collection<RepositoryItem>) product
-							.getPropertyValue("parentCategories");
-					String category = (String) Iterables.getFirst(parentCategories, null).getPropertyValue("name");
-					String brand = (String) product.getPropertyValue("brand");
-					productBrandList.add(brand);
-					productCategoryList.add(category);
-					productIdList.add(product.getRepositoryId());
+
 					productListPriceList.add(basePrice);
 					productNameList.add(name);
 					productQuantityList.add(quantity);
 					productSkuList.add(sku);
 					productUnitPriceList.add(String.valueOf(itemPriceInfo.getSalePrice()));
 				}
+				
 
 				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, "checkout")
 						.addArrayValues(TealiumHelper.CartPageUDO.PredefinedUDOFields.PRODUCT_BRAND, productBrandList)
