@@ -32,11 +32,6 @@
 	<dsp:importbean bean="/atg/commerce/catalog/CategoryLookup" />
 	<dsp:importbean bean="/atg/store/StoreConfiguration"
 		var="storeConfiguration" />
-	<%-- Tealium SiteCore droplets --%>
-	<dsp:importbean bean="/tealium/droplet/UtagSyncDroplet" />
-	<dsp:importbean bean="/tealium/droplet/SiteCoreGenericPageDroplet" />
-	<dsp:importbean bean="/tealium/droplet/SiteCoreCategoryPageDroplet" />
-	<dsp:importbean bean="/tealium/droplet/SiteCoreProductDetailDroplet" />
 
 	<dsp:getvalueof var="contextPath"
 		bean="/OriginatingRequest.contextPath" />
@@ -57,7 +52,7 @@
 	</c:if>
 
 	<%-- Serve the Tealium SiteCore utagsync script --%>
-	<dsp:droplet name="UtagSyncDroplet">
+	<dsp:droplet name="/tealium/droplet/UtagSyncDroplet">
 	</dsp:droplet>
 
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -207,63 +202,9 @@
 	<dsp:getvalueof var="bodyClass" param="bodyClass" />
 	<body class="${bodyClass}">
 
-		<%-- Serve Tealium generic page script, if not page specific requarements --%>
-		<dsp:getvalueof var="productId" param="productId" />
-		<dsp:getvalueof var="siteLocale"
-			value="${currentSite.defaultLanguage}_${currentSite.defaultCountry}" />
-		<c:choose>
-
-			<%-- display product detail script --%>
-			<c:when test="${not empty productId}">
-				<dsp:droplet name="/atg/commerce/catalog/ProductLookup">
-					<dsp:param name="id" value="${productId}" />
-					<dsp:oparam name="output">
-						<dsp:droplet name="SiteCoreProductDetailDroplet">
-							<dsp:param name="pageName" value="atg_store_pageProductDetail" />
-							<dsp:param name="language" value="${siteLocale}" />
-							<dsp:param name="product" param="element" />
-						</dsp:droplet>
-					</dsp:oparam>
-				</dsp:droplet>
-			</c:when>
-
-			<c:when test="${StoreCartridgeTools.userOnCategoryPage}">
-				<%-- Display category infomration on category page --%>
-				<c:if test="${not empty currentCategoryId}">
-					<dsp:droplet name="CategoryLookup">
-						<dsp:param name="id" value="${currentCategoryId}" />
-						<dsp:oparam name="output">
-							<dsp:droplet name="SiteCoreCategoryPageDroplet">
-								<dsp:param name="category" param="element" />
-								<dsp:param name="pageName" value="${contentItem.name}" />
-								<dsp:param name="language" value="${siteLocale}" />
-								<dsp:param name="currency" value="USD" />
-							</dsp:droplet>
-						</dsp:oparam>
-					</dsp:droplet>
-				</c:if>
-			</c:when>
-			
-			<%-- Display shoping card script --%>
-			<c:when test="${fn:contains(bodyClass, 'atg_store_pageCart')}">
-				<dsp:importbean bean="/tealium/droplet/SiteCoreShoppingCardDroplet"/>
-				<dsp:droplet name="SiteCoreShoppingCardDroplet">
-					<dsp:param name="pageName" value="${bodyClass}" />
-					<dsp:param name="language" value="${siteLocale}" />
-					<dsp:param name="currency" value="USD" />
-					<dsp:param name="shopingCard" bean="/atg/commerce/ShoppingCart"/>			
-				</dsp:droplet>
-			</c:when>
-
-			<%-- Display generic page tag when unknow page type --%>
-			<c:otherwise>
-				<dsp:droplet name="SiteCoreGenericPageDroplet">
-					<dsp:param name="pageName" value="${bodyClass}" />
-					<dsp:param name="language" value="${siteLocale}" />
-					<dsp:param name="currency" value="USD" />
-				</dsp:droplet>
-			</c:otherwise>
-
-		</c:choose>
+	<dsp:include page="/includes/tealiumTags.jsp">
+		<dsp:param name="bodyClass" value="${bodyClass}"/>
+	</dsp:include>
+	
 </dsp:page>
 <%-- @version $Id: //hosting-blueprint/B2CBlueprint/version/11.0/Storefront/j2ee/store.war/includes/pageStart.jsp#1 $$Change: 848678 $--%>

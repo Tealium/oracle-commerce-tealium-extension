@@ -130,16 +130,16 @@ public class DataConverter extends GenericService {
 		try {
 			this.tealiumHelper = setupTealiumHelper();
 		} catch (UDODefinitionException exc) {
-			throw new ServiceException(exc);
+			throw new ServiceException("Telium UDO error", exc);
 		} catch (UDOUpdateException exc) {
-			throw new ServiceException(exc);
+			throw new ServiceException("Telium UDO error", exc);
 		}
 	}
 
 	/**
-	 * Creates UTAG synk script tag text
+	 * Creates UTAG sync script tag text
 	 * 
-	 * @return UTAG synk script tag text
+	 * @return UTAG sync script tag text
 	 */
 	public String getSyncTag() {
 		String result = "";
