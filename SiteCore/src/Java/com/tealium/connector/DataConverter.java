@@ -48,6 +48,12 @@ import com.tealium.util.udohelpers.exceptions.UDOUpdateException;
  */
 public class DataConverter extends GenericService {
 
+	private static final String PARENT_PRODUCTS = "parentProducts";
+	private static final String PRODUCT = "product";
+	private static final String BRAND = "brand";
+	private static final String PARENT_CATEGORIES = "parentCategories";
+	private static final String DISPLAY_NAME = "displayName";
+	
 	private static final String ERROR_STRING = "<!--  Tealium ERROR \nThere may be an error in your installation, please check you logging.\n"
 			+ "Log refernce ID:  %s\n\t\t  END Tealium ERROR -->";
 	
@@ -225,21 +231,21 @@ public class DataConverter extends GenericService {
 				UDO udo = setupUDO(PrebuiltUDOPageTypes.PRODUCT, pageName, currency, language);
 
 				Collection<RepositoryItem> parentCategories = (Collection<RepositoryItem>) product
-						.getPropertyValue("parentCategories");
+						.getPropertyValue(PARENT_CATEGORIES);
 				List<String> productCategories = Collections.emptyList();
 				if (null != parentCategories) {
 					productCategories = Lists.transform(Lists.<RepositoryItem> newArrayList(parentCategories),
 							new Function<RepositoryItem, String>() {
 								@Override
 								public String apply(RepositoryItem item) {
-									return (String) item.getPropertyValue("displayName");
+									return (String) item.getPropertyValue(DISPLAY_NAME);
 								}
 
 							});
 				}
 
-				String productBrand = (String) product.getPropertyValue("brand");
-				String productName = (String) product.getPropertyValue("displayName");
+				String productBrand = (String) product.getPropertyValue(BRAND);
+				String productName = (String) product.getPropertyValue(DISPLAY_NAME);
 
 				Collection<RepositoryItem> childSkus = (Collection<RepositoryItem>) product
 						.getPropertyValue(getPricingTools().getChildSKUsPropertyName());
@@ -268,18 +274,17 @@ public class DataConverter extends GenericService {
 				}
 				String productPrice = Iterables.getFirst(skusPrices, "0");
 
-				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, "product");
+				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, PRODUCT);
 				udo.addArrayValues(TealiumHelper.ProductPageUDO.PredefinedUDOFields.PRODUCT_BRAND,
 						Lists.newArrayList(productBrand));
 				udo.addArrayValues(TealiumHelper.ProductPageUDO.PredefinedUDOFields.PRODUCT_CATEGORY,
-						Lists.newArrayList(Iterables.getFirst(productCategories, "")));
+						Lists.newArrayList(joinStrings(productCategories)));
 				udo.addArrayValues(TealiumHelper.ProductPageUDO.PredefinedUDOFields.PRODUCT_ID,
 						Lists.newArrayList(product.getRepositoryId()));
 				udo.addArrayValues(TealiumHelper.ProductPageUDO.PredefinedUDOFields.PRODUCT_LIST_PRICE,
 						Lists.newArrayList(productPrice));
 				udo.addArrayValues(TealiumHelper.ProductPageUDO.PredefinedUDOFields.PRODUCT_NAME,
 						Lists.newArrayList(productName));
-				String[] skuArr = new String[skus.size()];
 				udo.addArrayValues(TealiumHelper.ProductPageUDO.PredefinedUDOFields.PRODUCT_SKU,
 						Lists.newArrayList(joinStrings(skus)));
 				udo.addArrayValues(TealiumHelper.ProductPageUDO.PredefinedUDOFields.PRODUCT_UNIT_PRICE,
@@ -314,8 +319,8 @@ public class DataConverter extends GenericService {
 		if (getConfiguration().isEnabled()) {
 			try {
 				UDO udo = setupUDO(PrebuiltUDOPageTypes.CATEGORY, pageName, currency, language);
-				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, "product");
-				final String categoryName = (String) category.getPropertyValue("displayName");
+				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, PRODUCT);
+				final String categoryName = (String) category.getPropertyValue(DISPLAY_NAME);
 				if (StringUtils.isNotBlank(categoryName)) {
 					udo.setValue(TealiumHelper.CategoryPageUDO.PredefinedUDOFields.PAGE_CATEGORY_NAME, categoryName);
 				}
@@ -456,19 +461,19 @@ public class DataConverter extends GenericService {
 
 					final RepositoryItem skuItem = getCatalogTools().getCatalog().getItem(
 							commerceItem.getCatalogRefId(), "sku");
-					final Collection<RepositoryItem> parentProducts = (Set<RepositoryItem>) skuItem
-							.getPropertyValue("parentProducts");
+					final Collection<RepositoryItem> parentProducts = (Collection<RepositoryItem>) skuItem
+							.getPropertyValue(PARENT_PRODUCTS);
 					final Set<String> brands = new TreeSet<String>();
 					final Set<String> productIds = new TreeSet<String>();
 					final Set<String> categories = new TreeSet<String>();
 					for (RepositoryItem parentProduct : parentProducts) {
 						productIds.add(parentProduct.getRepositoryId());
-						String brand = (String) parentProduct.getPropertyValue("brand");
+						String brand = (String) parentProduct.getPropertyValue(BRAND);
 						brands.add(brand);
 						final Collection<RepositoryItem> parentCategories = (Collection<RepositoryItem>) parentProduct
-								.getPropertyValue("parentCategories");
+								.getPropertyValue(PARENT_CATEGORIES);
 						for (RepositoryItem parentCategory : parentCategories) {
-							categories.add((String) parentCategory.getPropertyValue("displayName"));
+							categories.add((String) parentCategory.getPropertyValue(DISPLAY_NAME));
 						}
 					}
 					productIdList.add(joinStrings(productIds));
@@ -476,7 +481,7 @@ public class DataConverter extends GenericService {
 					productCategoryList.add(joinStrings(categories));
 
 					String sku = skuItem.getRepositoryId();
-					String name = (String) skuItem.getPropertyValue("displayName");
+					String name = (String) skuItem.getPropertyValue(DISPLAY_NAME);
 					String quantity = String.valueOf(commerceItem.getQuantity());
 					ItemPriceInfo itemPriceInfo = commerceItem.getPriceInfo();
 					String basePrice = String.valueOf(itemPriceInfo.getAmount());
@@ -542,8 +547,7 @@ public class DataConverter extends GenericService {
 				String siteCurrency = ObjectUtils.defaultIfNull(lastOrder.getPriceInfo().getCurrencyCode(), currency);
 				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_CURRENCY, siteCurrency);
 				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_ID, lastOrder.getId());
-				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.CUSTOMER_ID,
-						lastOrder.getProfileId());
+				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.CUSTOMER_ID, lastOrder.getProfileId());
 				if (StringUtils.isNotBlank(userEmail)) {
 					udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.CUSTOMER_EMAIL, userEmail);
 				}
@@ -560,11 +564,10 @@ public class DataConverter extends GenericService {
 				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_SUBTOTAL,
 						String.valueOf(priceInfo.getRawSubtotal()));
 
-				final PaymentGroup paymentGroup = Iterables.getFirst((List<PaymentGroup>) lastOrder.getPaymentGroups(),
-						null);
+				final PaymentGroup paymentGroup = Iterables.getFirst((List<PaymentGroup>) lastOrder.getPaymentGroups(),null);
+
 				// null is not possible for submitted order
-				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_PAYMENT_TYPE,
-						paymentGroup.getPaymentGroupClassType());
+				udo.setValue(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.ORDER_PAYMENT_TYPE, paymentGroup.getPaymentGroupClassType());
 
 				List<String> productBrandList = Lists.newLinkedList();
 				List<String> productCategoryList = Lists.newLinkedList();
@@ -578,23 +581,32 @@ public class DataConverter extends GenericService {
 
 				final Collection<CommerceItem> commerceItems = lastOrder.getCommerceItems();
 				for (CommerceItem commerceItem : commerceItems) {
-					final RepositoryItem skuItem = getCatalogTools().getCatalog().getItem(commerceItem.getCatalogId(),
-							"sku");
-					final RepositoryItem product = (RepositoryItem) skuItem.getPropertyValue("parentProduct");
+					final RepositoryItem skuItem = getCatalogTools().getCatalog().getItem(commerceItem.getCatalogRefId(), "sku");
+					final Collection<RepositoryItem> parentProducts = (Collection<RepositoryItem>) skuItem.getPropertyValue(PARENT_PRODUCTS);
+					final Set<String> brands = new TreeSet<String>();
+					final Set<String> productIds = new TreeSet<String>();
+					final Set<String> categories = new TreeSet<String>();
+					for (RepositoryItem parentProduct : parentProducts) {
+						productIds.add(parentProduct.getRepositoryId());
+						String brand = (String) parentProduct.getPropertyValue(BRAND);
+						brands.add(brand);
+						final Collection<RepositoryItem> parentCategories = (Collection<RepositoryItem>) parentProduct
+								.getPropertyValue(PARENT_CATEGORIES);
+						for (RepositoryItem parentCategory : parentCategories) {
+							categories.add((String) parentCategory.getPropertyValue(DISPLAY_NAME));
+						}
+					}
+					productIdList.add(joinStrings(productIds));
+					productBrandList.add(joinStrings(brands));
+					productCategoryList.add(joinStrings(categories));
+					
+					
 					String sku = skuItem.getRepositoryId();
-					String name = (String) skuItem.getPropertyValue("name");
+					String name = (String) skuItem.getPropertyValue(DISPLAY_NAME);
 					String quantity = String.valueOf(commerceItem.getQuantity());
 					ItemPriceInfo itemPriceInfo = commerceItem.getPriceInfo();
 					String basePrice = String.valueOf(itemPriceInfo.getAmount());
-					final Collection<RepositoryItem> parentCategories = (Collection<RepositoryItem>) product
-							.getPropertyValue("parentCategories");
-					String category = (String) Iterables.getFirst(parentCategories, null).getPropertyValue("name");
-					String brand = (String) product.getPropertyValue("brand");
 
-					// TODO: Check filds with Patric
-					productBrandList.add(brand);
-					productCategoryList.add(category);
-					productIdList.add(product.getRepositoryId());
 					productListPriceList.add(basePrice);
 					productNameList.add(name);
 					productQuantityList.add(quantity);

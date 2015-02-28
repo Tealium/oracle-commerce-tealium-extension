@@ -207,11 +207,6 @@
 	<dsp:getvalueof var="bodyClass" param="bodyClass" />
 	<body class="${bodyClass}">
 
-		<dsp:importbean bean="/OriginatingRequest" var="originatingRequest" />
-		<dsp:getvalueof var="contentItem"
-			vartype="com.endeca.infront.assembler.ContentItem"
-			value="${originatingRequest.contentItem}" />
-
 		<%-- Serve Tealium generic page script, if not page specific requarements --%>
 		<dsp:getvalueof var="productId" param="productId" />
 		<dsp:getvalueof var="siteLocale"
@@ -248,7 +243,8 @@
 					</dsp:droplet>
 				</c:if>
 			</c:when>
-
+			
+			<%-- Display shoping card script --%>
 			<c:when test="${fn:contains(bodyClass, 'atg_store_pageCart')}">
 				<dsp:importbean bean="/tealium/droplet/SiteCoreShoppingCardDroplet"/>
 				<dsp:droplet name="SiteCoreShoppingCardDroplet">

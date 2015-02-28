@@ -1,8 +1,13 @@
 package com.tealium.connector;
 
+import static com.tealium.connector.RepositoryItemMockBuilder.newBuilder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,13 +20,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import atg.beans.PropertyNotFoundException;
 import atg.commerce.catalog.CatalogTools;
 import atg.commerce.order.CommerceItem;
 import atg.commerce.order.CreditCard;
@@ -39,7 +44,6 @@ import atg.userprofiling.ProfileTools;
 import atg.userprofiling.PropertyManager;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.tealium.config.TealiumConfiguration;
 import com.tealium.connector.search.SearchResult;
 import com.tealium.util.udohelpers.TealiumHelper.PrebuiltUDOPageTypes;
@@ -111,7 +115,7 @@ public class DataConverterTestCase {
 				this.testInstance.getSyncTag().contains(
 						"src=\"//tags.tiqcdn.com/utag/testAccount/testProfile/testEnv/utag.sync.js\""));
 	}
-	
+
 	@Test
 	public void shouldProduceEmptyStrWhenUtagSynckDisabled() throws Exception {
 		this.config.setUtagSyncEnabled(false);
@@ -130,19 +134,19 @@ public class DataConverterTestCase {
 		assertTrue("Should be en empty string",
 				StringUtils.isBlank(this.testInstance.getGenericPageScript("testPage", "USD", "en")));
 	}
-	
+
 	@Test
 	public void shouldReturnErrorScriptWhenException() throws Exception {
 		this.config.setUtagSyncEnabled(true);
 		this.config.setEnvironmentName(null);
 		DataConverter spy = Mockito.spy(this.testInstance);
-		doThrow(UDODefinitionException.class).when(spy).setupUDO(any(PrebuiltUDOPageTypes.class),anyString(), anyString(), anyString());
-		final Pattern refIDrx = Pattern.compile("(?s)^(<!-{2}.+)(ID:\\s+-{0,1}\\d{10})(.+-{2}>)$");
+		doThrow(UDODefinitionException.class).when(spy).setupUDO(any(PrebuiltUDOPageTypes.class), anyString(),
+				anyString(), anyString());
+		final Pattern refIDrx = Pattern.compile("(?s)^(<!-{2}.+){1}?(ID:\\s+-{0,1}\\d{9,10})?(.+-{2}>)$");
 		String errorComment = spy.getGenericPageScript("testPage", "USD", "en");
 		Matcher matcher = refIDrx.matcher(errorComment);
-		assertTrue("Error string not matches the expression", matcher.matches() );
+		assertTrue("Error string not matches the expression", matcher.matches());
 	}
-
 
 	@Test
 	public void shoulProduceHomeScript() throws Exception {
@@ -151,13 +155,13 @@ public class DataConverterTestCase {
 
 	@Test
 	public void shouldProducePDPScript() throws Exception {
-		final RepositoryItem product = createProductMock();
+		final RepositoryItem product = createPDPPageProductMock();
 		assertEquals(readResource(PDP_TAG), this.testInstance.getProductPageScript(product, "testPDP", "USD", "en"));
 	}
 
 	@Test
 	public void shouldProduceCategoryScript() throws Exception {
-		final RepositoryItem category = new RepositoryItemMockBuilder("category").setId("TC0")
+		final RepositoryItem category = newBuilder("category").setId("TC0")
 				.setProperty("displayName", "TestCat0").build();
 		assertEquals(readResource(CDP_TAG), this.testInstance.getCategoryScript(category, "testCDP", "USD", "en"));
 	}
@@ -176,8 +180,7 @@ public class DataConverterTestCase {
 
 	@Test
 	public void shouldProduceCardScript() throws Exception {
-		assertEquals(readResource(ORDR_TAG),
-				this.testInstance.getCartScript(createOrderMock("TSTORD0"), "ShopingCard", "USD", "en"));
+		assertEquals(readResource(ORDR_TAG),this.testInstance.getCartScript(createOrderMock("TSTORD0"), "ShopingCard", "USD", "en"));
 	}
 
 	@Test
@@ -188,22 +191,21 @@ public class DataConverterTestCase {
 
 	/* Mock helpers */
 
-	private Profile mockProfile() throws PropertyNotFoundException {
+	private Profile mockProfile() throws Exception {
 		Profile profile = new Profile();
 
 		ProfileTools mProfileTools = mock(ProfileTools.class);
 		PropertyManager mPropertyManager = mock(PropertyManager.class);
 		when(mProfileTools.getPropertyManager()).thenReturn(mPropertyManager);
-		when(mProfileTools.getSecurityStatus(profile)).thenReturn(5); // login
-																		// wiht
-																		// https
+		// login with https
+		when(mProfileTools.getSecurityStatus(profile)).thenReturn(5);  
 		when(mPropertyManager.getSecurityStatusAnonymous()).thenReturn(0);
 		when(mPropertyManager.getEmailAddressPropertyName()).thenReturn("email");
 		when(mPropertyManager.getFirstNamePropertyName()).thenReturn("firstName");
 		when(mPropertyManager.getLastNamePropertyName()).thenReturn("lastName");
 		profile.setProfileTools(mProfileTools);
 
-		MutableRepositoryItem user = new RepositoryItemMockBuilder("user").setId("tstUsr")
+		MutableRepositoryItem user = newBuilder("user").setId("tstUsr")
 				.setProperty("firstName", "Test").setProperty("lastName", "Testing").setProperty("gender", "male")
 				.setProperty("email", "test@example.com").build();
 
@@ -211,7 +213,7 @@ public class DataConverterTestCase {
 		return profile;
 	}
 
-	private Order createOrderMock(String id) throws RepositoryException {
+	private Order createOrderMock(String id) throws Exception {
 
 		final Order result = mock(Order.class);
 		when(result.getId()).thenReturn(id);
@@ -236,6 +238,7 @@ public class DataConverterTestCase {
 		RepositoryItem product = mockProduct(category);
 		RepositoryItem sku0 = mockSKU(product, "TSKU0", "TestSKU0", 100D);
 		RepositoryItem sku1 = mockSKU(product, "TSKU1", "TestSKU1", 200D);
+		when(product.getPropertyValue("childSkus")).thenReturn(Lists.newArrayList(sku0,sku1));
 
 		commereceItems.add(mockCommerceItem("CI0", "TSKU0", sku0, 1L, 100D, 100D, 0D));
 		commereceItems.add(mockCommerceItem("CI1", "TSKU1", sku1, 2L, 400D, 200D, 50D));
@@ -243,27 +246,32 @@ public class DataConverterTestCase {
 		return result;
 	}
 
-	private RepositoryItem mockSKU(RepositoryItem product, String id, String name, double price) {
-		return new RepositoryItemMockBuilder("sku").setId(id).setProperty("name", name).setProperty("listPrice", price)
-				.setProperty("parentProduct", product).build();
+	private RepositoryItem mockSKU(RepositoryItem product, String id, String name, double price) throws Exception {
+		final RepositoryItem result = newBuilder("sku").setId(id).setProperty("displayName", name).setListProperty("parentProducts", product).build();
+		final ItemPriceInfo priceInfo = new ItemPriceInfo();
+		priceInfo.setRawTotalPrice(price);
+		priceInfo.setSalePrice(price);
+		when(mPricingTools.calculatePrice(product, result, 1L)).thenReturn(priceInfo);
+		when(mCatalog.getItem(id, "sku")).thenReturn(result);
+		return result;
 	}
 
 	private RepositoryItem mockProduct(RepositoryItem category) {
-		RepositoryItem result = new RepositoryItemMockBuilder("product").setId("TP0")
-				.setProperty("name", "TestProduct").setProperty("brand", "TestBrand")
-				.setProperty("parentCategories", Sets.newHashSet(category)).build();
+		RepositoryItem result = newBuilder("product").setId("TP0")
+				.setProperty("displayName", "TestProduct").setProperty("brand", "TestBrand")
+				.setSetProperty("parentCategories", category).build();
 		return result;
 	}
 
 	private RepositoryItem mockCategory(String id, String name) {
-		return new RepositoryItemMockBuilder("category").setId(id).setProperty("name", name).build();
+		return newBuilder("category").setId(id).setProperty("displayName", name).build();
 	}
 
 	private CommerceItem mockCommerceItem(String id, String skuId, RepositoryItem sku, long qty, double priceAmount,
 			double listPrice, double discount) throws RepositoryException {
 		CommerceItem result = mock(CommerceItem.class);
 		when(result.getId()).thenReturn(id);
-		when(result.getCatalogId()).thenReturn(skuId);
+		when(result.getCatalogRefId()).thenReturn(skuId);
 		when(result.getQuantity()).thenReturn(qty);
 		ItemPriceInfo priceInfo = mock(ItemPriceInfo.class);
 		when(priceInfo.getAmount()).thenReturn(priceAmount);
@@ -274,25 +282,18 @@ public class DataConverterTestCase {
 			when(priceInfo.isDiscounted()).thenReturn(true);
 			when(priceInfo.getOrderDiscountShare()).thenReturn(discount);
 		}
-		when(mCatalog.getItem(skuId, "sku")).thenReturn(sku);
 		return result;
 	}
 
-	private RepositoryItem createProductMock() {
-		final RepositoryItem firstCat = new RepositoryItemMockBuilder("category").setId("TC0")
-				.setProperty("name", "Test0").build();
-		// final RepositoryItem secondCat = new
-		// RepositoryItemMockBuilder("category").setId("TC1")
-		// .setProperty("name", "Test1").build();
-		final RepositoryItem firstSku = new RepositoryItemMockBuilder("sku").setId("TSKU0")
-				.setProperty("listPrice", 10d).build();
-		// final RepositoryItem secondSku = new
-		// RepositoryItemMockBuilder("sku").setId("TSKU1")
-		// .setProperty("listPrice", 20d).build();
-		return new RepositoryItemMockBuilder("product").setId("TP0").setProperty("name", "TestsProduct")
-				.setProperty("listPrice", 10d).setProperty("brand", "TestBrand")
-				.setProperty("parentCategories", Sets.<RepositoryItem> newHashSet(firstCat))
-				.setProperty("childSkus", Lists.<RepositoryItem> newArrayList(firstSku)).build();
+	private RepositoryItem createPDPPageProductMock() throws Exception {
+		final RepositoryItem firstCat = newBuilder("category").setId("TC0").setProperty("displayName", "Test0").build();
+		final RepositoryItem secondCat = mockCategory("TC1", "Test1");
+		RepositoryItem result = newBuilder("product").setId("TP0").setProperty("displayName", "TestsProduct").setProperty("brand", "TestBrand")
+				.setListProperty("parentCategories", firstCat, secondCat).build();		
+		RepositoryItem firstSku = mockSKU(result, "TSKU0", "TestSku1", 10D);		
+		final RepositoryItem secondSku = mockSKU(result,"TSKU1","TestSku2", 20D);
+		when(result.getPropertyValue("childSkus")).thenReturn(Lists.newArrayList(firstSku,secondSku));		
+		return result;
 	}
 
 }

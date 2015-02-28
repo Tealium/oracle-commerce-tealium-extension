@@ -17,9 +17,13 @@ import com.google.common.collect.Sets;
 @SuppressWarnings("unchecked")
 public class RepositoryItemMockBuilder {
 	private MutableRepositoryItem mock;
-
-	public RepositoryItemMockBuilder(final String itemDescriptorName) {
+	
+	public static RepositoryItemMockBuilder newBuilder(final String itemDescriptorName) {
 		Validate.notBlank(itemDescriptorName, "itemDescriptorName should be provided");
+		return new RepositoryItemMockBuilder(itemDescriptorName);
+	}
+
+	private RepositoryItemMockBuilder(final String itemDescriptorName) {		
 		this.mock = mock(MutableRepositoryItem.class);
 		final RepositoryItemDescriptor descriptorMock = mock(RepositoryItemDescriptor.class);
 		when(descriptorMock.getItemDescriptorName()).thenReturn(itemDescriptorName);
