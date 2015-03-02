@@ -30,12 +30,11 @@
 
 		<%-- Display category tags on category page --%>
 		<c:when test="${StoreCartridgeTools.userOnCategoryPage}">			
-			<c:if test="${not empty currentCategoryId}">
-				<dsp:importbean bean="/tealium/droplet/SiteCoreCategoryPageDroplet" />
-				<dsp:droplet name="CategoryLookup">
-					<dsp:param name="id" value="${currentCategoryId}" />
+			<c:if test="${not empty StoreCartridgeTools.currentCategoryId}">
+				<dsp:droplet name="/atg/commerce/catalog/CategoryLookup">
+					<dsp:param name="id" value="${StoreCartridgeTools.currentCategoryId}" />
 					<dsp:oparam name="output">
-						<dsp:droplet name="SiteCoreCategoryPageDroplet">
+						<dsp:droplet name="/tealium/droplet/SiteCoreCategoryPageDroplet">
 							<dsp:param name="category" param="element" />
 							<dsp:param name="pageName" value="${bodyClass}" />
 							<dsp:param name="language" value="${siteLocale}" />
@@ -100,7 +99,7 @@
 		</c:when>
 		
 		<%-- Display home page --%>
-		<c:when test="${requestURI eq '/crs/home'}">
+		<c:when test="${fn:endsWith(requestURI,'home')}">
 			<dsp:droplet name="/tealium/droplet/SiteCoreHomePageDroplet">
 				<dsp:param name="pageName" value="atg_store_pageHomePage" />
 				<dsp:param name="language" value="${siteLocale}" />
