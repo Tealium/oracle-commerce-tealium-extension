@@ -46,10 +46,11 @@
 			</c:if>
 		</c:when>
 		
-		<%-- display search results tags --%>
+		<%-- Skip the generic script generation for the search results --%>
 		<c:when test="${not empty search}">
-			<dsp:importbean bean="/atg/endeca/assembler/SearchFormHandler"/> 
-			<%--
+			<%-- Just skip, results will be rendered on search result Endeca cartridge --%> 
+			
+			<%-- 
 			<dsp:droplet name="/tealium/droplet/SiteCoreSearchResultsDroplet">
 				<dsp:param name="pageName" value="${bodyClass}" />
 				<dsp:param name="language" value="${siteLocale}" />

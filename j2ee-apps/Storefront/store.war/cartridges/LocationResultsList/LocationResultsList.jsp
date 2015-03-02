@@ -21,11 +21,25 @@
   <dsp:getvalueof var="contentItem" vartype="com.endeca.infront.assembler.ContentItem" value="${originatingRequest.contentItem}"/> 
   <dsp:setvalue param="countryCode" beanvalue="SiteContext.site.defaultCountry"/>
   
+  
   <%-- Render the search results. --%>
       
   <dsp:getvalueof var="size" value="${contentItem.totalNumRecs}"/>
   <dsp:getvalueof var="page" value="${contentItem.recsPerPage}"/>
-  
+ 
+ 	<h1>H1</h1>
+ 
+  <dsp:importbean bean="/atg/multisite/Site" var="currentSite" />
+  <dsp:getvalueof var="siteLocale" value="${currentSite.defaultLanguage}_${currentSite.defaultCountry}" />
+  <%-- Render the Tealium tags --%>
+  <dsp:droplet name="/tealium/droplet/SiteCoreSearchResultsDroplet">
+		<dsp:param name="pageName" value="atg_store_SearchResults" />
+		<dsp:param name="language" value="${siteLocale}" />
+		<dsp:param name="currency" value="USD" />
+		<dsp:param name="searchKeyWord" param="Ntt"/>
+		<dsp:param name="totalResultsNumber" value="${size}"/>
+   </dsp:droplet> 
+ 
   <%-- Display the number of search results if this is a query search --%>
   
   <div id="atg_store_mainHeader">

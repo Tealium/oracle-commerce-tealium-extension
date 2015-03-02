@@ -22,7 +22,7 @@ public class SiteCoreSearchResultsDroplet extends SiteCoreBaseDroplet {
 		final String currency = getCurrency(req);
 		final String language = getLanguage(req);
 		final String keyWord = req.getParameter(IP_KEYWORD);
-		final Long totalResultsNumber = (Long) req.getObjectParameter(IP_TOTAL_RESULTS_NO);
+		final Long totalResultsNumber =  Long.valueOf((String)req.getObjectParameter(IP_TOTAL_RESULTS_NO));
 		final String generatedScript = getConverter().getSearchPageScript(
 				new SearchResult(keyWord, totalResultsNumber), pageName, currency, language);
 		serviceScript(generatedScript, res);
