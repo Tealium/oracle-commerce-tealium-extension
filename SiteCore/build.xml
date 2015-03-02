@@ -23,11 +23,6 @@
 	<property name="module.testlib.dir" location="${module.dir}/testlib" />
 	<property name="module.apidoc.dir" location="${module.dir}/apidoc" />
 
-	<!--
-	<property name="modules" value="${module},DCS.PublishingAgent,DafEar.Admin" />
-	<echo message="${modules}" />
-	-->
-
 	<target name="clean">
 		<delete dir="${build.dir}" />
 	</target>
@@ -95,7 +90,7 @@
 			<link offline="true" href="http://tealium.com/sitecore/docs/api" packagelistloc="com.tealium.*" packagelistLoc="${build.dir}/hlpdoc/docs"/>
 		</javadoc>
 		<jar destfile="${build.dir}/atg-tealium-site-core-apidoc.jar" basedir="${build.dir}/doc"/>
-		<!-- <delete dir="${build.dir}/doc"/> -->
+		<delete dir="${build.dir}/doc"/>
 	</target>
 
 	<target name="distr" depends="build,package,doc">
@@ -127,7 +122,6 @@
 		<tar destfile="${build.dir}/atg-tealium-module.tar.bz2" compression="bzip2">
 			<zipfileset dir="${build.dir}/Tealium" prefix="Tealium" />
 		</tar>
-		<!--
 		<delete includeEmptyDirs="true">
 			<fileset dir="${build.dir}" includes="**/**">
 				<exclude name="atg-tealium-module.zip"/>
@@ -135,10 +129,9 @@
 				<exclude name="atg-tealium-site-core-apidoc.jar"/>
 			</fileset>
 		</delete>
-		-->
 	</target>
 
-	<target name="build" depends="clean,compile" />
+	<target name="build" depends="clean,compile,test" />
 
 	<path id="dynamo.classpath">
 		<fileset dir="${atg.dir}/DAS/lib" includes="**/*.jar" />
