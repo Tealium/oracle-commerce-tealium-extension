@@ -69,7 +69,7 @@
 		</junit>
 	</target>
 
-	<target name="package">
+	<target name="package" depends="compile,test">
 		<delete file="${classes.jar}" />
 		<delete file="${config.jar}" />
 		<jar destfile="${classes.jar}">
@@ -93,7 +93,23 @@
 		<delete dir="${build.dir}/doc"/>
 	</target>
 
-	<target name="distr" depends="build,package,doc">
+	<target name="distr" depends="module,doc">
+		<zip destfile="${build.dir}/atg-tealium-module.zip" compress="true" level="9">
+			<zipfileset dir="${build.dir}/Tealium" prefix="Tealium" />
+		</zip>
+		<tar destfile="${build.dir}/atg-tealium-module.tar.bz2" compression="bzip2">
+			<zipfileset dir="${build.dir}/Tealium" prefix="Tealium" />
+		</tar>
+		<delete includeEmptyDirs="true">
+			<fileset dir="${build.dir}" includes="**/**">
+				<exclude name="atg-tealium-module.zip"/>
+				<exclude name="atg-tealium-module.tar.bz2"/>
+				<exclude name="atg-tealium-site-core-apidoc.jar"/>
+			</fileset>
+		</delete>
+	</target>
+	
+	<target name="module" depends="package">
 		<tstamp>
 			<format property="TODAY" pattern="yyyymmdd" locale="en,US" />
 		</tstamp>
@@ -116,22 +132,9 @@
 			<attribute name="ATG-Product" value="Tealium" />
 			<attribute name="ATG-Date" value="${TODAY}" />
 		</manifest>
-		<zip destfile="${build.dir}/atg-tealium-module.zip" compress="true" level="9">
-			<zipfileset dir="${build.dir}/Tealium" prefix="Tealium" />
-		</zip>
-		<tar destfile="${build.dir}/atg-tealium-module.tar.bz2" compression="bzip2">
-			<zipfileset dir="${build.dir}/Tealium" prefix="Tealium" />
-		</tar>
-		<delete includeEmptyDirs="true">
-			<fileset dir="${build.dir}" includes="**/**">
-				<exclude name="atg-tealium-module.zip"/>
-				<exclude name="atg-tealium-module.tar.bz2"/>
-				<exclude name="atg-tealium-site-core-apidoc.jar"/>
-			</fileset>
-		</delete>
 	</target>
 
-	<target name="build" depends="clean,compile,test" />
+	<target name="build" depends="clean,module" />
 
 	<path id="dynamo.classpath">
 		<fileset dir="${atg.dir}/DAS/lib" includes="**/*.jar" />

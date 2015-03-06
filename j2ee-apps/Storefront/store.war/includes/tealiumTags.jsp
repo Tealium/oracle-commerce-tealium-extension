@@ -99,7 +99,7 @@
 		</c:when>
 		
 		<%-- Display home page --%>
-		<c:when test="${fn:endsWith(requestURI,'home')}">
+		<c:when test="${fn:endsWith(requestURI,'home') }">
 			<dsp:droplet name="/tealium/droplet/SiteCoreHomePageDroplet">
 				<dsp:param name="pageName" value="atg_store_pageHomePage" />
 				<dsp:param name="language" value="${siteLocale}" />

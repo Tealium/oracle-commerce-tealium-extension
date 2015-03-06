@@ -67,6 +67,10 @@ public class DataConverter extends GenericService {
 	private TealiumHelper tealiumHelper;
 	private PricingTools pricingTools;
 	private CatalogTools catalogTools;
+	
+	protected TealiumHelper getTealiumHelper() {
+		return getTealiumHelper();
+	}
 
 	/**
 	 * Creates and do the basic configuration of UDO
@@ -89,7 +93,7 @@ public class DataConverter extends GenericService {
 	 */
 	protected UDO setupUDO(PrebuiltUDOPageTypes pageType, final String pageName, final String currency,
 			final String language) throws UDODefinitionException, UDOUpdateException {
-		this.tealiumHelper.assumePageTypeUDO("global").mayHaveStringFields(
+		getTealiumHelper().assumePageTypeUDO("global").mayHaveStringFields(
 				EnumSet.of(UDOOptions.WRITE_IF_EMPTY_OR_NULL, UDOOptions.REQUIRED), "page_name", "site_currency",
 				"site_region");
 		UDO udo = tealiumHelper.createDefaultUDO(pageType);
@@ -114,7 +118,7 @@ public class DataConverter extends GenericService {
 		return new TealiumHelper(tealiumCDN, accountString, profileString, targetString);
 	}
 
-	private String getExceptionString(Exception exc) {
+	protected String getExceptionString(Exception exc) {
 		final Date date = new Date();
 		final String referenceIDString = String.valueOf(date.hashCode());
 		vlogError(exc, "Tealium error ID: {0}", referenceIDString);
@@ -145,7 +149,7 @@ public class DataConverter extends GenericService {
 		String result = "";
 		if (getConfiguration().isEnabled() && getConfiguration().isUtagSyncEnabled()) {
 			try {
-				result = this.tealiumHelper.outputUtagSyncJsTag();
+				result = getTealiumHelper().outputUtagSyncJsTag();
 			} catch (Exception exc) {
 				vlogError(exc, "Can't bild tealium UTAG synck tag");
 				return getExceptionString(exc);
@@ -199,7 +203,7 @@ public class DataConverter extends GenericService {
 			try {
 				UDO udo = setupUDO(PrebuiltUDOPageTypes.HOME, pageName, currency, language);
 				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, "home");
-				scriptString = tealiumHelper.outputFullHtml(udo);
+				scriptString = getTealiumHelper().outputFullHtml(udo);
 			} catch (Exception exc) {
 				vlogError(exc, "Can't bild tealium home script:  pageName {1}, currency {2}, language {3}", pageName,
 						currency, language);
