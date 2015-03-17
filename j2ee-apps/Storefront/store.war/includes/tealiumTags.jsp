@@ -15,11 +15,11 @@
 
 		<%-- display product detail script --%>
 		<c:when test="${not empty productId}">
-			<dsp:importbean bean="/tealium/droplet/SiteCoreProductDetailDroplet" />
+			<dsp:importbean bean="/tealium/droplet/ProductDetailDroplet" />
 			<dsp:droplet name="/atg/commerce/catalog/ProductLookup">
 				<dsp:param name="id" value="${productId}" />
 				<dsp:oparam name="output">
-					<dsp:droplet name="SiteCoreProductDetailDroplet">
+					<dsp:droplet name="ProductDetailDroplet">
 						<dsp:param name="pageName" value="atg_store_pageProductDetail" />
 						<dsp:param name="language" value="${siteLocale}" />
 						<dsp:param name="product" param="element" />
@@ -34,7 +34,7 @@
 				<dsp:droplet name="/atg/commerce/catalog/CategoryLookup">
 					<dsp:param name="id" value="${StoreCartridgeTools.currentCategoryId}" />
 					<dsp:oparam name="output">
-						<dsp:droplet name="/tealium/droplet/SiteCoreCategoryPageDroplet">
+						<dsp:droplet name="/tealium/droplet/CategoryPageDroplet">
 							<dsp:param name="category" param="element" />
 							<dsp:param name="pageName" value="${bodyClass}" />
 							<dsp:param name="language" value="${siteLocale}" />
@@ -50,7 +50,7 @@
 			<%-- Just skip, results will be rendered on search result Endeca cartridge --%> 
 			
 			<%-- 
-			<dsp:droplet name="/tealium/droplet/SiteCoreSearchResultsDroplet">
+			<dsp:droplet name="/tealium/droplet/SearchResultsDroplet">
 				<dsp:param name="pageName" value="${bodyClass}" />
 				<dsp:param name="language" value="${siteLocale}" />
 				<dsp:param name="currency" value="USD" />
@@ -62,8 +62,8 @@
 			
 		<%-- Display shopping card script --%>
 		<c:when test="${fn:contains(bodyClass, 'atg_store_pageCart')}">
-			<dsp:importbean bean="/tealium/droplet/SiteCoreShoppingCardDroplet" />
-			<dsp:droplet name="SiteCoreShoppingCardDroplet">
+			<dsp:importbean bean="/tealium/droplet/ShoppingCardDroplet" />
+			<dsp:droplet name="ShoppingCardDroplet">
 				<dsp:param name="pageName" value="${bodyClass}" />
 				<dsp:param name="language" value="${siteLocale}" />
 				<dsp:param name="currency" value="USD" />
@@ -79,7 +79,7 @@
 			<c:if test="${not currentProfile.transient}">	
 				<dsp:getvalueof var="userEmail" value="${currentProfile.email}" />
 			</c:if>
-			<dsp:droplet name="/tealium/droplet/SiteCoreOrderConfirmationDroplet">
+			<dsp:droplet name="/tealium/droplet/OrderConfirmationDroplet">
 				<dsp:param name="pageName" value="${bodyClass}" />
 				<dsp:param name="language" value="${siteLocale}" />
 				<dsp:param name="currency" value="USD" />
@@ -90,7 +90,7 @@
 		
 		<%-- Display my account page scripts --%>
 		<c:when test="${fn:contains(bodyClass,'atg_store_myAccountPage')}">
-			<dsp:droplet name="/tealium/droplet/SiteCoreCustomerDetailDroplet">
+			<dsp:droplet name="/tealium/droplet/CustomerDetailDroplet">
 				<dsp:param name="pageName" value="${bodyClass}" />
 				<dsp:param name="language" value="${siteLocale}" />
 				<dsp:param name="currency" value="USD" />
@@ -100,7 +100,7 @@
 		
 		<%-- Display home page --%>
 		<c:when test="${fn:endsWith(requestURI,'home') }">
-			<dsp:droplet name="/tealium/droplet/SiteCoreHomePageDroplet">
+			<dsp:droplet name="/tealium/droplet/HomePageDroplet">
 				<dsp:param name="pageName" value="atg_store_pageHomePage" />
 				<dsp:param name="language" value="${siteLocale}" />
 				<dsp:param name="currency" value="USD" />
@@ -110,8 +110,8 @@
 
 		<%-- Display generic page tag when unknown page type --%>
 		<c:otherwise>
-			<dsp:importbean bean="/tealium/droplet/SiteCoreGenericPageDroplet" />
-			<dsp:droplet name="SiteCoreGenericPageDroplet">
+			<dsp:importbean bean="/tealium/droplet/GenericPageDroplet" />
+			<dsp:droplet name="GenericPageDroplet">
 				<dsp:param name="pageName" value="${bodyClass}" />
 				<dsp:param name="language" value="${siteLocale}" />
 				<dsp:param name="currency" value="USD" />

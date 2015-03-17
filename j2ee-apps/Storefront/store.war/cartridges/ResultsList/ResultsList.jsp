@@ -27,7 +27,7 @@
       <dsp:getvalueof bean="Site" var="currentSite" />
       <dsp:getvalueof var="siteLocale" value="${currentSite.defaultLanguage}_${currentSite.defaultCountry}" />
       
-      <dsp:droplet name="/tealium/droplet/SiteCoreSearchResultsDroplet">
+      <dsp:droplet name="/tealium/droplet/SearchResultsDroplet">
 		<dsp:param name="pageName" value="atg_store_SearchResult" />
 		<dsp:param name="language" value="${siteLocale}" />
 		<dsp:param name="currency" value="USD" />
