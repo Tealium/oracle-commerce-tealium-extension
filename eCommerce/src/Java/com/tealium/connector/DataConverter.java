@@ -69,7 +69,7 @@ public class DataConverter extends GenericService {
 	private CatalogTools catalogTools;
 	
 	protected TealiumHelper getTealiumHelper() {
-		return getTealiumHelper();
+		return this.tealiumHelper;
 	}
 
 	/**

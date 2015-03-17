@@ -17,7 +17,7 @@
 	<property name="config.jar" location="${build.dir}/config.jar" />
 	<property name="reports.tests" location="${build.dir}/testsResult" />
 
-	<property name="module" value="SiteCore" />
+	<property name="module" value="eCommerce" />
 	<property name="module.dir" location="${basedir}" />
 	<property name="module.lib.dir" location="${module.dir}/lib" />
 	<property name="module.testlib.dir" location="${module.dir}/testlib" />
@@ -87,7 +87,7 @@
 			<classpath refid="module.classpath" />
 			<link href="http://docs.oracle.com/javase/7/docs/api/" packagelistloc="java.*" />
 			<link href="http://docs.oracle.com/cd/E52191_02/Platform.11-1/apidoc/" packagelistloc="atg.*" />
-			<link offline="true" href="http://tealium.com/sitecore/docs/api" packagelistloc="com.tealium.*" packagelistLoc="${build.dir}/hlpdoc/docs"/>
+			<link offline="true" href="http://tealium.com/eCommerce/docs/api" packagelistloc="com.tealium.*" packagelistLoc="${build.dir}/hlpdoc/docs"/>
 		</javadoc>
 		<jar destfile="${build.dir}/atg-tealium-site-core-apidoc.jar" basedir="${build.dir}/doc"/>
 		<delete dir="${build.dir}/doc"/>
@@ -113,18 +113,18 @@
 		<tstamp>
 			<format property="TODAY" pattern="yyyymmdd" locale="en,US" />
 		</tstamp>
-		<delete dir="${build.dir}/Tealium/SiteCore" />
-		<mkdir dir="${build.dir}/Tealium/SiteCore" />
-		<copy file="${config.jar}" todir="${build.dir}/Tealium/SiteCore/config" />
-		<mkdir dir="${build.dir}/Tealium/SiteCore/lib" />
-		<copy todir="${build.dir}/Tealium/SiteCore/lib">
+		<delete dir="${build.dir}/Tealium/eCommerce" />
+		<mkdir dir="${build.dir}/Tealium/eCommerce" />
+		<copy file="${config.jar}" todir="${build.dir}/Tealium/eCommerce/config" />
+		<mkdir dir="${build.dir}/Tealium/eCommerce/lib" />
+		<copy todir="${build.dir}/Tealium/eCommerce/lib">
 			<fileset dir="${module.lib.dir}" includes="**/*.jar" />
 		</copy>
-		<copy file="${classes.jar}" todir="${build.dir}/Tealium/SiteCore/lib" />
-		<copy todir="${build.dir}/Tealium/SiteCore/META-INF">
+		<copy file="${classes.jar}" todir="${build.dir}/Tealium/eCommerce/lib" />
+		<copy todir="${build.dir}/Tealium/eCommerce/META-INF">
 			<fileset dir="${module.dir}/META-INF" includes="**/**" />
 		</copy>
-		<manifest file="${build.dir}/Tealium/SiteCore/META-INF/MANIFEST.MF" mode="update">
+		<manifest file="${build.dir}/Tealium/eCommerce/META-INF/MANIFEST.MF" mode="update">
 			<attribute name="ATG-Date" value="${TODAY}" />
 		</manifest>
 		<mkdir dir="${build.dir}/Tealium/META-INF" />
