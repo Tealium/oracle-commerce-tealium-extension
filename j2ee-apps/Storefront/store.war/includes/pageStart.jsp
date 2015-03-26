@@ -204,6 +204,7 @@
 
 	<dsp:include page="/includes/tealiumTags.jsp">
 		<dsp:param name="bodyClass" value="${bodyClass}"/>
+		<dsp:param name="bodyClass" param="pageTitle"/>
 	</dsp:include>
 	
 </dsp:page>

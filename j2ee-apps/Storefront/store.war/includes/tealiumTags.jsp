@@ -8,7 +8,7 @@
 	<%-- Serve Tealium generic page script, if not page specific requarements --%>
 	<dsp:getvalueof var="productId" param="productId" />
 	<dsp:getvalueof var="search" param="search"/>
-	<dsp:getvalueof var="siteLocale" value="${currentSite.defaultLanguage}_${currentSite.defaultCountry}" />
+	<dsp:getvalueof var="siteLocale" bean="/OriginatingRequest.requestLocale.locale"/>
 	<dsp:getvalueof var="requestURI" bean="/OriginatingRequest.RequestURI" />
 	
 	<c:choose>
@@ -20,7 +20,7 @@
 				<dsp:param name="id" value="${productId}" />
 				<dsp:oparam name="output">
 					<dsp:droplet name="ProductDetailDroplet">
-						<dsp:param name="pageName" value="atg_store_pageProductDetail" />
+						<dsp:param name="pageName" value="Product Detail" />
 						<dsp:param name="language" value="${siteLocale}" />
 						<dsp:param name="product" param="element" />
 					</dsp:droplet>
@@ -36,7 +36,7 @@
 					<dsp:oparam name="output">
 						<dsp:droplet name="/tealium/droplet/CategoryPageDroplet">
 							<dsp:param name="category" param="element" />
-							<dsp:param name="pageName" value="${bodyClass}" />
+							<dsp:param name="pageName" value="category" />
 							<dsp:param name="language" value="${siteLocale}" />
 							<dsp:param name="currency" value="USD" />
 						</dsp:droplet>
@@ -64,7 +64,7 @@
 		<c:when test="${fn:contains(bodyClass, 'atg_store_pageCart')}">
 			<dsp:importbean bean="/tealium/droplet/ShoppingCardDroplet" />
 			<dsp:droplet name="ShoppingCardDroplet">
-				<dsp:param name="pageName" value="${bodyClass}" />
+				<dsp:param name="pageName" value="Cart" />
 				<dsp:param name="language" value="${siteLocale}" />
 				<dsp:param name="currency" value="USD" />
 				<dsp:param name="shopingCard" bean="/atg/commerce/ShoppingCart" />
@@ -80,7 +80,7 @@
 				<dsp:getvalueof var="userEmail" value="${currentProfile.email}" />
 			</c:if>
 			<dsp:droplet name="/tealium/droplet/OrderConfirmationDroplet">
-				<dsp:param name="pageName" value="${bodyClass}" />
+				<dsp:param name="pageName" value="Order Confirmation" />
 				<dsp:param name="language" value="${siteLocale}" />
 				<dsp:param name="currency" value="USD" />
 				<dsp:param name="order" bean="/atg/commerce/ShoppingCart.current" />
@@ -91,7 +91,7 @@
 		<%-- Display my account page scripts --%>
 		<c:when test="${fn:contains(bodyClass,'atg_store_myAccountPage')}">
 			<dsp:droplet name="/tealium/droplet/CustomerDetailDroplet">
-				<dsp:param name="pageName" value="${bodyClass}" />
+				<dsp:param name="pageName" value="myAccountPage" />
 				<dsp:param name="language" value="${siteLocale}" />
 				<dsp:param name="currency" value="USD" />
 				<dsp:param name="profile" bean="/atg/userprofiling/Profile"/>
@@ -101,7 +101,7 @@
 		<%-- Display home page --%>
 		<c:when test="${fn:endsWith(requestURI,'home') }">
 			<dsp:droplet name="/tealium/droplet/HomePageDroplet">
-				<dsp:param name="pageName" value="atg_store_pageHomePage" />
+				<dsp:param name="pageName" value="HomePage" />
 				<dsp:param name="language" value="${siteLocale}" />
 				<dsp:param name="currency" value="USD" />
 			</dsp:droplet>
@@ -112,7 +112,7 @@
 		<c:otherwise>
 			<dsp:importbean bean="/tealium/droplet/GenericPageDroplet" />
 			<dsp:droplet name="GenericPageDroplet">
-				<dsp:param name="pageName" value="${bodyClass}" />
+				<dsp:param name="pageName" param="pageTitle" />
 				<dsp:param name="language" value="${siteLocale}" />
 				<dsp:param name="currency" value="USD" />
 			</dsp:droplet>

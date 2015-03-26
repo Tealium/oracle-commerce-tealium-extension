@@ -25,15 +25,15 @@
       
       <%-- Render tealium search tag --%>
       <dsp:getvalueof bean="Site" var="currentSite" />
-      <dsp:getvalueof var="siteLocale" value="${currentSite.defaultLanguage}_${currentSite.defaultCountry}" />
+      <dsp:getvalueof var="siteLocale" bean="/OriginatingRequest.requestLocale.locale"/>
       
       <dsp:droplet name="/tealium/droplet/SearchResultsDroplet">
-		<dsp:param name="pageName" value="atg_store_SearchResult" />
+		<dsp:param name="pageName" value="Search Results" />
 		<dsp:param name="language" value="${siteLocale}" />
 		<dsp:param name="currency" value="USD" />
 		<dsp:param name="searchKeyWord" value="${question}"/>
 		<dsp:param name="totalResultsNumber" value="2"/>
-	  </dsp:droplet>
+    </dsp:droplet>
 
  	 <%-- Display the number of search results if this is a query search --%>
     
