@@ -61,7 +61,7 @@
 		</c:when>
 			
 		<%-- Display shopping card script --%>
-		<c:when test="${fn:contains(bodyClass, 'atg_store_pageCart')}">
+		<c:when test="${fn:contains(bodyClass, 'pageCart')}">
 			<dsp:importbean bean="/tealium/droplet/ShoppingCardDroplet" />
 			<dsp:droplet name="ShoppingCardDroplet">
 				<dsp:param name="pageName" value="Cart" />
@@ -112,7 +112,7 @@
 		<c:otherwise>
 			<dsp:importbean bean="/tealium/droplet/GenericPageDroplet" />
 			<dsp:droplet name="GenericPageDroplet">
-				<dsp:param name="pageName" param="pageTitle" />
+				<dsp:param name="pageName" value="generic" />
 				<dsp:param name="language" value="${siteLocale}" />
 				<dsp:param name="currency" value="USD" />
 			</dsp:droplet>
