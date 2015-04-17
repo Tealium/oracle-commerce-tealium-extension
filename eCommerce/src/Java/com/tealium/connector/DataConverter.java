@@ -323,7 +323,7 @@ public class DataConverter extends GenericService {
 		if (getConfiguration().isEnabled()) {
 			try {
 				UDO udo = setupUDO(PrebuiltUDOPageTypes.CATEGORY, pageName, currency, language);
-				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, PRODUCT);
+				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, "category");
 				final String categoryName = (String) category.getPropertyValue(DISPLAY_NAME);
 				if (StringUtils.isNotBlank(categoryName)) {
 					udo.setValue(TealiumHelper.CategoryPageUDO.PredefinedUDOFields.PAGE_CATEGORY_NAME, categoryName);
@@ -394,6 +394,7 @@ public class DataConverter extends GenericService {
 		if (getConfiguration().isEnabled()) {
 			try {
 				final UDO udo = setupUDO(PrebuiltUDOPageTypes.CUSTOMER, pageName, currency, language);
+				udo.setValue(TealiumHelper.CustomerPageUDO.PredefinedUDOFields.PAGE_TYPE, "account");
 				udo.setValue(TealiumHelper.CustomerPageUDO.PredefinedUDOFields.CUSTOMER_ID, profile.getRepositoryId());
 				final ProfileTools profileTools = profile.getProfileTools();
 				final PropertyManager propertyManager = profileTools.getPropertyManager();
@@ -619,7 +620,7 @@ public class DataConverter extends GenericService {
 					productDiscountList.add(String.valueOf(itemPriceInfo.getOrderDiscountShare()));
 				}
 
-				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, "checkout")
+				udo.setValue(TealiumHelper.HomePageUDO.PredefinedUDOFields.PAGE_TYPE, "confirmation")
 						.addArrayValues(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.PRODUCT_BRAND,
 								productBrandList)
 						.addArrayValues(TealiumHelper.ConfirmationPageUDO.PredefinedUDOFields.PRODUCT_CATEGORY,
