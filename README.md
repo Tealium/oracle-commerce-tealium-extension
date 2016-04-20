@@ -1,7 +1,5 @@
-oracle-commerce
+Oracle Commerce Tealium iQ Extension
 ===============
-
-Oracle Commerce TealiumIQ extension
 
 Developer's Guide: https://github.com/Tealium/oracle-commerce-tealium-extension/tree/master/manual
 
