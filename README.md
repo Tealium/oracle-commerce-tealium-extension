@@ -1,7 +1,14 @@
-oracle-commerce
+Oracle Commerce Tealium iQ Extension
 ===============
 
-Oracle Commerce TealiumIQ extension
+Developer's Guide
 
-Read manual here: https://github.com/Tealium/oracle-commerce-tealium-extension/tree/master/manual
+- https://github.com/Tealium/oracle-commerce-tealium-extension/tree/master/manual
 
+Download Release
+
+- https://github.com/Tealium/oracle-commerce-tealium-extension/releases
+
+Oracle Docs
+
+- http://docs.oracle.com/cd/E55783_02/Platform.11-2/ATGInstallGuide/html/index.html
